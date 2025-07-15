@@ -80,5 +80,6 @@ exports.menuMessage = () => {
 ⟩ ${PREFIX}inverter » Cores invertidas
 ⟩ ${PREFIX}bolsonaro » Meme da TV
 
-┗━━━━━━━━━━◆━━━━━━━━━━┛;
+┗━━━━━━━━━━◆━━━━━━━━━━┛
+`;
 };
