@@ -36,6 +36,7 @@ exports.menuMessage = () => {
 ⟩ ${PREFIX}rebaixar » Remover admin
 ⟩ ${PREFIX}limpar » Limpar o chat
 ⟩ ${PREFIX}anti-link » Bloquear links
+⟩ ${PREFIX}welcome » Ativa mensagem de despedida
 ⟩ ${PREFIX}welcome » Ativar boas-vindas (1/0)
 ⟩ ${PREFIX}agendar-mensagem » Agenda mensagens
 ⟩ ${PREFIX}hidetag » Marcação invisível
@@ -43,6 +44,7 @@ exports.menuMessage = () => {
 ════◇ *FERRAMENTAS* ◇════
 ╰┈➤ ${PREFIX}ping » Teste de conexão
 ⟩ ${PREFIX}cep » Consulta de CEP
+⟩ ${PREFIX}rename » Adiciona novos meta-dados à figurinha
 ⟩ ${PREFIX}perfil » Ver perfil de usuário
 ⟩ ${PREFIX}google-search » Pesquisa no Google
 ⟩ ${PREFIX}yt-search » Busca no YouTube
