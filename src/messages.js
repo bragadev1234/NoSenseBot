@@ -6,8 +6,23 @@
  * Para colocar a menção ao membro, use "@member" na mensagem.
  *
  * @author Dev Gui
+ * Expansão e melhoria de texro.
  */
 module.exports = {
-  welcomeMessage: "Seja bem vindo ao nosso grupo, @member!",
-  exitMessage: "Poxa, @member saiu do grupo... Sentiremos sua falta!",
+  welcomeMessage: `
+🌟 *Bem-vindo(a) ao grupo,* @member! 🌟
+
+» Leia as regras em /regras
+» Respeite todos os membros
+» Divirta-se! 🎉
+
+> Esperamos que você aproveite sua estadia aqui! 😊
+  `,
+  
+  exitMessage: `
+⚠️ *Até mais,* @member! ⚠️
+
+Sentiremos sua falta... 😔
+Se foi sem querer, sinta-se à vontade para voltar! 🚪🔙
+  `
 };
