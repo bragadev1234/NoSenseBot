@@ -40,6 +40,7 @@ exports.menuMessage = () => {
 ⟩ ${PREFIX}welcome » Ativar boas-vindas (1/0)
 ⟩ ${PREFIX}agendar-mensagem » Agenda mensagens
 ⟩ ${PREFIX}hidetag » Marcar todos do grupo!
+⟩ ${PREFIX}rename » Altera o nome do grupo e salva o nome antigo
 
 ════◇ *FERRAMENTAS* ◇════
 ╰┈➤ ${PREFIX}ping » Teste de conexão
