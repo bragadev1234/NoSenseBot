@@ -39,10 +39,11 @@ exports.menuMessage = () => {
 ⟩ ${PREFIX}welcome » Ativa mensagem de despedida
 ⟩ ${PREFIX}welcome » Ativar boas-vindas (1/0)
 ⟩ ${PREFIX}agendar-mensagem » Agenda mensagens
-⟩ ${PREFIX}hidetag » Marcação invisível
+⟩ ${PREFIX}hidetag » Marcar todos do grupo!
 
 ════◇ *FERRAMENTAS* ◇════
 ╰┈➤ ${PREFIX}ping » Teste de conexão
+⟩ ${PREFIX}revelar » Revela uma imagem ou vídeo com visualização única
 ⟩ ${PREFIX}cep » Consulta de CEP
 ⟩ ${PREFIX}rename » Adiciona novos meta-dados à figurinha
 ⟩ ${PREFIX}perfil » Ver perfil de usuário
