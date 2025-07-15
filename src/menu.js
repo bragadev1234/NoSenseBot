@@ -44,6 +44,7 @@ exports.menuMessage = () => {
 
 ════◇ *FERRAMENTAS* ◇════
 ╰┈➤ ${PREFIX}ping » Teste de conexão
+⟩ ${PREFIX}!vagasi » scraper de vagas BR com fallback pra remoto global - 30+ vagas, salário e filtros preciso
 ⟩ ${PREFIX}revelar » Revela uma imagem ou vídeo com visualização única
 ⟩ ${PREFIX}cep » Consulta de CEP
 ⟩ ${PREFIX}rename » Adiciona novos meta-dados à figurinha
