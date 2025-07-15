@@ -1,4 +1,19 @@
-# 🤖 Takeshi Bot
+# Peter-Bot (Fork Takeshi Bot)
+
+> **Este projeto é um fork expansivo do Takeshi Bot original**, com as seguintes melhorias e adições:
+>- **Expansão de funcionalidades**: Novos recursos para enriquecer a experiência do usuário  
+>- **Otimização visual**: Design aprimorado e interfaces mais intuitivas  
+>- **Melhorias textuais**: Conteúdo revisado e aprimorado para maior clareza e impacto  
+>- **Roadmap futuro**: Novos comandos e features em desenvolvimento  
+
+**Importante**: Este fork **não substitui** o excelente trabalho dos desenvolvedores originais do Takeshi Bot. Nosso objetivo é complementar e expandir o projeto base, mantendo todo o respeito pelo código aberto.  
+
+**Agradecimentos especiais** aos criadores originais por disponibilizar este projeto incrível como open source. Seu trabalho foi a base fundamental para esta versão.  
+
+---  
+>**ABAIXO SEGUE O README ORIGINAL DO TAKESHI BOT**  
+
+---
 
 <div align="center">
     <img src="./assets/images/takeshi-bot.png" width="500">
@@ -8,7 +23,7 @@
 
 <div align="center">
     <a href="https://github.com/guiireal/takeshi-bot">
-        <img alt="Version" src="https://img.shields.io/badge/Vers%C3%A3o-5.4.1-blue">
+        <img alt="Version" src="https://img.shields.io/badge/Vers%C3%A3o-1.2.fork-blue">
     </a>
 </div>
 
