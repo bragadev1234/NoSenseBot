@@ -75,7 +75,6 @@ module.exports = {
 👤 *Nome:* @${targetJid.split("@")[0]}
 🎖️ *Cargo:* ${userRole}
 
-🌚 *Programa:* R$ ${programPrice}
 🐮 *Gado:* ${randomPercent + 7 || 5}%
 🎱 *Passiva:* ${randomPercent + 5 || 10}%
 ✨ *Beleza:* ${beautyLevel}%`;
