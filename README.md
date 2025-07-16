@@ -20,7 +20,7 @@
 
 <div align="center">
     <a href="https://github.com/braga2311/peter-bot">
-        <img alt="Version" src="https://img.shields.io/badge/Vers%C3%A3o-1.2.fork-blue">
+        <img alt="Version" src="https://img.shields.io/badge/Vers%C3%A3o-1.2.DevS.Trava.fork-blue">
     </a>
 </div>
 
