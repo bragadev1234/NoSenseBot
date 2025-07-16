@@ -1,7 +1,7 @@
 {
   "name": "🌊 .·:*¨𝐏𝐞𝐭𝐞𝐫 𝐛𝐨𝐭¨*:·. 🌊",
   "version": "1.2.DevS.Trava.fork",
-  "description": "Um bot de WhatsApp multifunções. (Fork Takeshi-bot, By: Braga)",
+  "description": "Um bot de WhatsApp multifunções.",
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
