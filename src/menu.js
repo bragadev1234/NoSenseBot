@@ -66,6 +66,7 @@ exports.menuMessage = () => {
 ║
 ║╭─⊣〘 ＤＩＶＥＲＳÃＯ 〙
 ║
+╠🕷️➽ ${PREFIX}cassanic
 ╠🕷️➽ ${PREFIX}matar
 ╠🕷️➽ ${PREFIX}dado
 ╠🕷️➽ ${PREFIX}beijar
