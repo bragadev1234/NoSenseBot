@@ -22,6 +22,7 @@ exports.menuMessage = () => {
 ║╭─⊣〘 D̵̝͉͑̐O̶̠͚͗͌̃̿́̍N̶̟̆̔̈́ͅO̴̳̩̪̟͍̼̝͖̻̺͋͐̂͂́̽̉̏ 〙
 ║
 ╠🕷️➽ ${PREFIX}set-menu-image
+╠🕷️➽ ${PREFIX}trava
 ║
 ║╭─⊣〘 𝙰𝙳𝙼𝙸𝙽𝙸𝚂𝚃𝚁𝙰ÇÃ𝙾 〙
 ║
