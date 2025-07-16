@@ -12,75 +12,74 @@ const { readMore } = require("./utils");
 exports.menuMessage = () => {
   const date = new Date();
 
-  return `╭━━⪩ BEM VINDO! ⪨━━${readMore()}
-
-╰┈➤${BOT_NAME}
-╰┈➤ Data: ${date.toLocaleDateString("pt-br")}
-╰┈➤ Hora: ${date.toLocaleTimeString("pt-br")}
-╰┈➤ Prefixo: ${PREFIX}
-╰┈➤ Versão: ${packageInfo.version}
-╰━━─「～(■_■)～♪」─━━
-
-┏━━━━━━━━━━◆━━━━━━━━━━┓
-       🛠️ *COMANDOS DO BOT* 🛠️
-┗━━━━━━━━━━◆━━━━━━━━━━┛
-
-═════◇ *DONO* ◇═════
-╰┈➤ ${PREFIX}set-menu-image » Altera a imagem do menu
-
-════◇ *ADMINISTRAÇÃO* ◇════
-╰┈➤ ${PREFIX}abrir » Libera chat para membros
-⟩ ${PREFIX}fechar » Restringe chat a admins
-⟩ ${PREFIX}ban » Banir usuário
-⟩ ${PREFIX}promover » Tornar usuário admin
-⟩ ${PREFIX}rebaixar » Remover admin
-⟩ ${PREFIX}limpar » Limpar o chat
-⟩ ${PREFIX}anti-link » Bloquear links
-⟩ ${PREFIX}welcome » Ativa mensagem de despedida
-⟩ ${PREFIX}welcome » Ativar boas-vindas (1/0)
-⟩ ${PREFIX}agendar-mensagem » Agenda mensagens
-⟩ ${PREFIX}hidetag » Marcar todos do grupo!
-⟩ ${PREFIX}rename » Altera o nome do grupo e salva o nome antigo
-
-════◇ *FERRAMENTAS* ◇════
-╰┈➤ ${PREFIX}ping » Teste de conexão
-⟩ ${PREFIX}!vagasi » scraper de vagas BR com fallback pra remoto global - 30+ vagas, salário e filtros preciso
-⟩ ${PREFIX}revelar » Revela uma imagem ou vídeo com visualização única
-⟩ ${PREFIX}cep » Consulta de CEP
-⟩ ${PREFIX}rename » Adiciona novos meta-dados à figurinha
-⟩ ${PREFIX}perfil » Ver perfil de usuário
-⟩ ${PREFIX}google-search » Pesquisa no Google
-⟩ ${PREFIX}yt-search » Busca no YouTube
-
-════◇ *MÍDIA* ◇════
-╰┈➤ ${PREFIX}play » Exbir áudio do YouTube  + Informações 
-⟩ ${PREFIX}play-video » Exibir vídeo do YouTube + Informações 
-⟩ ${PREFIX}tik-tok » Videos do TikTok
-⟩ ${PREFIX}s » Imagem para figurinha
-⟩ ${PREFIX}ttp » Texto para figurinha
-⟩ ${PREFIX}to-image » Figurinha para imagem
-
-════◇ *IA & IMAGENS* ◇════
-╰┈➤ ${PREFIX}gemini » Chat com IA
-⟩ ${PREFIX}ia-sticker » Gerar figurinha com IA
-⟩ ${PREFIX}pixart » Converter para pixel art
-⟩ ${PREFIX}stable-diffusion-turbo » Gerador de imagens
-
-════◇ *DIVERSÃO* ◇════
-╰┈➤ ${PREFIX}matar » GIF matando usuário
-⟩ ${PREFIX}dado » Rolar dado
-⟩ ${PREFIX}beijar » GIF de beijo
-⟩ ${PREFIX}abracar » GIF de abraço
-⟩ ${PREFIX}socar » GIF de soco
-⟩ ${PREFIX}lutar » GIF de luta
-
-════◇ *EFFECTS* ◇════
-╰┈➤ ${PREFIX}blur » Desfoque na imagem
-⟩ ${PREFIX}cadeia » Efeito prisão
-⟩ ${PREFIX}rip » Efeito túmulo
-⟩ ${PREFIX}inverter » Cores invertidas
-⟩ ${PREFIX}bolsonaro » Meme da TV
-
-┗━━━━━━━━━━◆━━━━━━━━━━┛
+  return `╭─⊣〘 ${BOT_NAME} 〙${readMore()}
+║
+╠🕷️➽𝐕𝐄𝐑𝐒Ã𝐎: ${packageInfo.version}
+╠🕷️➽𝐃𝐀𝐓𝐀: ${date.toLocaleDateString("pt-br")}
+╠🕷️➽𝐇𝐎𝐑𝐀: ${date.toLocaleTimeString("pt-br")}
+╠🕷️➽𝐏𝐑𝐄𝐅𝐈𝐗𝐎: ${PREFIX}
+║
+║╭─⊣〘 D̵̝͉͑̐O̶̠͚͗͌̃̿́̍N̶̟̆̔̈́ͅO̴̳̩̪̟͍̼̝͖̻̺͋͐̂͂́̽̉̏ 〙
+║
+╠🕷️➽ ${PREFIX}set-menu-image
+║
+║╭─⊣〘 𝙰𝙳𝙼𝙸𝙽𝙸𝚂𝚃𝚁𝙰ÇÃ𝙾 〙
+║
+╠🕷️➽ ${PREFIX}abrir
+╠🕷️➽ ${PREFIX}fechar
+╠🕷️➽ ${PREFIX}ban
+╠🕷️➽ ${PREFIX}promover
+╠🕷️➽ ${PREFIX}rebaixar
+╠🕷️➽ ${PREFIX}limpar
+╠🕷️➽ ${PREFIX}anti-link
+╠🕷️➽ ${PREFIX}welcome
+╠🕷️➽ ${PREFIX}agendar-mensagem
+╠🕷️➽ ${PREFIX}hidetag
+╠🕷️➽ ${PREFIX}rename
+║
+║╭─⊣〘 𝙵𝙴𝚁𝚁𝙰𝙼𝙴𝙽𝚃𝙰𝚂 〙
+║
+╠🕷️➽ ${PREFIX}ping
+╠🕷️➽ ${PREFIX}!vagasi
+╠🕷️➽ ${PREFIX}revelar
+╠🕷️➽ ${PREFIX}cep
+╠🕷️➽ ${PREFIX}perfil
+╠🕷️➽ ${PREFIX}google-search
+╠🕷️➽ ${PREFIX}yt-search
+║
+║╭─⊣〘 MÍDIA 〙
+║
+╠🕷️➽ ${PREFIX}play
+╠🕷️➽ ${PREFIX}play-video
+╠🕷️➽ ${PREFIX}tik-tok
+╠🕷️➽ ${PREFIX}s
+╠🕷️➽ ${PREFIX}ttp
+╠🕷️➽ ${PREFIX}to-image
+║
+║╭─⊣〘 𝙸𝙰 & 𝙸𝙼𝙰𝙶𝙴𝙽𝚂 〙
+║
+╠🕷️➽ ${PREFIX}gemini
+╠🕷️➽ ${PREFIX}ia-sticker
+╠🕷️➽ ${PREFIX}pixart
+╠🕷️➽ ${PREFIX}stable-diffusion-turbo
+║
+║╭─⊣〘 ＤＩＶＥＲＳÃＯ 〙
+║
+╠🕷️➽ ${PREFIX}matar
+╠🕷️➽ ${PREFIX}dado
+╠🕷️➽ ${PREFIX}beijar
+╠🕷️➽ ${PREFIX}abracar
+╠🕷️➽ ${PREFIX}socar
+╠🕷️➽ ${PREFIX}lutar
+║
+║╭─⊣〘 𝙴𝙵𝙵𝙴𝙲𝚃𝚂 〙
+║
+╠🕷️➽ ${PREFIX}blur
+╠🕷️➽ ${PREFIX}cadeia
+╠🕷️➽ ${PREFIX}rip
+╠🕷️➽ ${PREFIX}inverter
+╠🕷️➽ ${PREFIX}bolsonaro
+║
+╚════• 〘${BOT_NAME}〙•═════╝
 `;
 };
