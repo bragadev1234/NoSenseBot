@@ -6,7 +6,7 @@ const { ASSETS_DIR } = require(`${BASE_DIR}/config`);
 
 module.exports = {
   name: "tapa",
-  description: "Dá um tapa em alguém.",
+  description: "Dá um tapa na bunda de alguém",
   commands: ["tapa"],
   usage: `${PREFIX}tapa @usuario`,
   /**
@@ -42,7 +42,7 @@ module.exports = {
 
     await sendGifFromFile(
       path.resolve(ASSETS_DIR, "images", "funny", "slap-jjk.mp4"),
-      `@${userNumber} deu um tapa na cara de @${targetNumber}!`,
+      `@${userNumber} Acabou de da um tapa na raba da😏 @${targetNumber}!  🔥`,
       [userJid, targetJid]
     );
   },
