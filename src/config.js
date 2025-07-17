@@ -7,7 +7,7 @@ exports.PREFIX = "!";
 exports.BOT_EMOJI = "🧑‍💻";
 
 // Nome do bot.
-exports.BOT_NAME = "peter-bot";
+exports.BOT_NAME = "ᑭᕮTᕮᖇ ᗷOT";
 
 // Número do bot.
 // Apenas números, exatamente como está no WhatsApp.
