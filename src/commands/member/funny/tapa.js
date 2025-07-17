@@ -41,7 +41,7 @@ module.exports = {
     const targetNumber = onlyNumbers(targetJid);
 
     await sendGifFromFile(
-      path.resolve(ASSETS_DIR, "images", "funny", "VID_20250716_200301_628.mp4),
+      path.resolve(ASSETS_DIR, "images", "funny", "VID_20250716_200301_628.mp4"),
       `@${userNumber} Acabou de da um tapa na raba da😏 @${targetNumber}!  🔥`,
       [userJid, targetJid]
     );
