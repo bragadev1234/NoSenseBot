@@ -4,10 +4,10 @@ const path = require("path");
 exports.PREFIX = "!";
 
 // Emoji do bot (mude se preferir).
-exports.BOT_EMOJI = "🧑‍💻";
+exports.BOT_EMOJI = "🍓";
 
 // Nome do bot.
-exports.BOT_NAME = "ᑭᕮTᕮᖇ ᗷOT";
+exports.BOT_NAME = "🍓 .·:*¨Mih¨*:·. 🌹";
 
 // Número do bot.
 // Apenas números, exatamente como está no WhatsApp.
