@@ -4,10 +4,10 @@ const path = require("path");
 exports.PREFIX = "!";
 
 // Emoji do bot (mude se preferir).
-exports.BOT_EMOJI = "🍓";
+exports.BOT_EMOJI = "ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧";
 
 // Nome do bot.
-exports.BOT_NAME = "🍓 .·:*¨Mih¨*:·. 🌹";
+exports.BOT_NAME = "𝕭𝖗𝖆𝖌𝖆𝕭𝖔𝖙";
 
 // Número do bot.
 // Apenas números, exatamente como está no WhatsApp.
@@ -17,9 +17,8 @@ exports.BOT_NUMBER = "558112345678";
 // Número do dono bot.
 // Apenas números, exatamente como está no WhatsApp.
 // Se o seu número não exibir o nono dígito (9) no WhatsApp, não coloque-o.
-exports.OWNER_NUMBER = "559984271816", "556381164925", "5516993341140", "557996116301";
-//                        eu(braga)       kelvin           mih              kil 
-// LID do dono do bot.
+exports.OWNER_NUMBER = "559984271816";
+
 // Para obter o LID do dono do bot, use o comando <prefixo>get-lid @marca ou +telefone do dono.
 exports.OWNER_LID = "219999999999999@lid";
 
