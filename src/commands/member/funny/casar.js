@@ -46,7 +46,7 @@ module.exports = {
     const targetNumber = onlyNumbers(targetJid);
 
     // Caminho absoluto para o GIF da animação do casamento
-    const gifPath = path.resolve(ASSETS_DIR, "images", "funny", "casar.mp4");
+    const gifPath = path.resolve(ASSETS_DIR, "images", "funny", "casar.gif");
 
     // Envia a mensagem com o GIF e texto personalizado mencionando os usuários
     await sendGifFromFile(
