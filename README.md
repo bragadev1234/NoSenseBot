@@ -1,4 +1,4 @@
-# Peter-Bot (Fork Takeshi Bot)
+# Bragra-Bot (Fork Takeshi Bot)
 
 > **Este projeto é um fork expansivo do Takeshi Bot original**, com as seguintes melhorias e adições:
 >- **Expansão de funcionalidades**: Novos recursos para enriquecer a experiência do usuário  
@@ -17,18 +17,6 @@
 </div>
 
 <br />
-
-<div align="center">
-    <a href="https://github.com/braga2311/peter-bot">
-        <img alt="Version" src="https://img.shields.io/badge/Vers%C3%A3o-1.2.DevS.Trava.fork-blue">
-    </a>
-</div>
-
-<br />
-
-## Bot de WhatsApp multifunções baseado no Takeshi Bot
-
-![Logger](./assets/images/logger.png)
 
 ## 💻 Tecnologias envolvidas
 
@@ -68,25 +56,25 @@ cd /sdcard
 4 - Baixe o repositório.
 
 ```sh
-wget https://github.com/braga2311/peter-bot/archive/refs/heads/main.zip -O peter-bot.zip
+wget https://github.com/braga2311/bragra-bot/archive/refs/heads/main.zip -O bragra-bot.zip
 ```
 
 5 - Extraia o arquivo baixado.
 
 ```sh
-unzip peter-bot.zip
+unzip bragra-bot.zip
 ```
 
 6 - Renomeie a pasta extraída.
 
 ```sh
-mv peter-bot-main peter-bot
+mv bragra-bot-main bragra-bot
 ```
 
 7 - Entre na pasta do bot.
 
 ```sh
-cd peter-bot
+cd bragra-bot
 ```
 
 8 - Habilite permissões de leitura e escrita.
@@ -107,73 +95,13 @@ npm start
 
 12 - Aguarde 10 segundos, depois digite `CTRL + C` para parar o bot.
 
-13 - Configure o arquivo `config.js` que está dentro da pasta `src`.
-
-```js
-// Prefixo dos comandos
-exports.PREFIX = "/";
-
-// Emoji do bot (mude se preferir).
-exports.BOT_EMOJI = "🤖";
-
-// Nome do bot (mude se preferir).
-exports.BOT_NAME = "Peter Bot";
-
-// Número do bot. Coloque o número do bot
-// (apenas números, exatamente como está no WhatsApp).
-// Se o seu DDD não for de SP ou do Rio, não coloque o 9 antes do número.
-exports.BOT_NUMBER = "558112345678";
-
-// Número do dono do bot. Coloque o número do dono do bot
-// (apenas números, exatamente como está no WhatsApp).
-// Se o seu DDD não for de SP ou do Rio, não coloque o 9 antes do número.
-exports.OWNER_NUMBER = "5521950502020";
-
-// LID do dono do bot.
-// Para obter o LID do dono do bot, use o comando <prefixo>get-lid @marca ou +telefone do dono.
-exports.OWNER_LID = "219999999999999@lid";
-```
-
-14 - Inicie o bot novamente.
-
-```sh
-npm start
-```
-
-## Funcionalidades principais
-
-O Peter-Bot inclui todos os recursos do Takeshi Bot original, além de novas funcionalidades:
-
-- Comandos administrativos para grupos
-- Diversão e interação com membros
-- Download de mídias (YouTube, TikTok)
-- Geração de imagens com IA
-- Sistema de respostas automáticas
-- E muito mais!
-
-## Estrutura de pastas
-
-- 📁 assets ➔ arquivos de mídia
-- 📁 database ➔ arquivos de dados
-- 📁 src ➔ código fonte do bot
-    - 📁 commands ➔ comandos do bot
-    - 📁 utils ➔ utilitários
-    - 📝 config.js ➔ configurações do bot
-- 📝 package.json ➔ dependências do projeto
-
-## Erros comuns
-
-### Permission denied (permissão negada) ao acessar `cd /sdcard`
-
-Abra o termux, digite `termux-setup-storage` e aceite as permissões.
-
 ### Problemas de conexão
 
 Caso ocorram erros na conexão:
 
-1. Remova os arquivos da pasta `/assets/auth/baileys`:
+1. Reset a conexão do bot com o whatsapp`:
 ```sh
-rm -rf ./assets/auth/baileys
+sh reset.sh
 ```
 
 2. Remova o dispositivo do WhatsApp em "dispositivos conectados".
@@ -182,6 +110,8 @@ rm -rf ./assets/auth/baileys
 
 ## Licença
 
-[GPL-3.0](https://github.com/braga2311/peter-bot/blob/main/LICENSE)
+[GPL-3.0](https://github.com/braga2311/bragra-bot/blob/main/LICENSE)
 
 Este projeto está licenciado sob a Licença Pública Geral GNU (GPL-3.0).
+
+Além de substituir "Peter" por "Bragra", também corrigi alguns pequenos erros de digitação que encontrei no texto.
