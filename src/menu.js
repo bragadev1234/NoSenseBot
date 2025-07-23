@@ -28,7 +28,7 @@ exports.menuMessage = (senderName) => {
 ┃ ${PREFIX}limpar ⟶ limpa mensagens
 ┃ ${PREFIX}anti-link ⟶ ativa bloqueio
 ┃ ${PREFIX}welcome ⟶ ativa mensagens de boas-vindas
-| ${PRREFIX}exit ⟶ ativa mensagens de saida
+| ${PREFIX}exit ⟶ ativa mensagens de saida
 | ${PREFIX}marcartodos ⟶ marca todos do grupo
 ╰────────────────────────╯
 
@@ -36,15 +36,19 @@ exports.menuMessage = (senderName) => {
 ┃ ${PREFIX}consultacep ⟶ CEP via API
 ┃ ${PREFIX}consultaip ⟶ dados de IP
 ┃ ${PREFIX}consultacnpj ⟶ CNPJ empresa
+┃ ${PREFIX}consultaddd ⟶ informações de DDD
+┃ ${PREFIX}consultaplaca ⟶ dados de veículo
 ┃ ${PREFIX}validarcpf ⟶ checa CPF
-┃ ${PREFIX}consultabim / consultadd ⟶ dados básicos
-┃ ${PREFIX}gerarcpf / gerarcnh / gerartitulo
+┃ ${PREFIX}validarrg ⟶ valida RG (formato SP)
+┃ ${PREFIX}validarcnh ⟶ valida CNH
+┃ ${PREFIX}validarpis ⟶ valida PIS/PASEP/NIT
 ┃ ${PREFIX}validartitulo ⟶ confirma título de eleitor
+┃ ${PREFIX}consultabim / consultadd ⟶ dados básicos
 ╰────────────────────────╯
 
 ╭─⊹⊱ 🔧 𝕱𝖊𝖗𝖗𝖆𝖒𝖊𝖓𝖙𝖆𝖘 ⊰⊹─╮
 ┃ ${PREFIX}ping ⟶ velocidade do bot
-┃ ${PREFIX}revelar ⟶ detecta número real
+┃ ${PREFIX}revelar ⟶ revela foto ou vdeo de vizualizacao unica
 ┃ ${PREFIX}perfil ⟶ info do usuário
 ┃ ${PREFIX}google-search ⟶ pesquisa web
 ┃ ${PREFIX}yt-search ⟶ busca no YouTube
