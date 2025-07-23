@@ -1,98 +1,91 @@
-/**
- * Menu do bot
- *
- * @author Dev Gui
- * Alteração no fork por: braga
- * Design reformulado por: [Seu Nome]
- */
 const { BOT_NAME, PREFIX } = require("./config");
 const packageInfo = require("../package.json");
-const { readMore } = require("./utils");
 
 exports.menuMessage = (senderName) => {
   const date = new Date();
 
-  return `╭┈⊰ 🌸 『 *꧁꧂ _꧁ღ${BOT_NAME}꧂_  ꧁꧂* 』
-┊Olá, *${senderName || 'usuário'}*!
-╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯
+  return `
+⛧━━━━━━━━━━━━━━━━━━━━━━━━━⛧
+  ꧁༒☬ 𝕭𝖗𝖆𝖌𝖆𝕭𝖔𝖙 ☬༒꧂
+『 Usuário: *${senderName || '𝖆𝖓ô𝖓𝖎𝖒𝖔'}* 』
+⛧━━━━━━━━━━━━━━━━━━━━━━━━━⛧
 
-╭┈❪🍧ฺꕸ▸ *MENU PRINCIPAL*
-┊
-┊•.‌𖥨֗🍓⭟Versão: ${packageInfo.version}
-┊•.‌𖥨֗🍓⭟Data: ${date.toLocaleDateString("pt-br")}
-┊•.‌𖥨֗🍓⭟Hora: ${date.toLocaleTimeString("pt-br")}
-┊•.‌𖥨֗🍓⭟Prefixo: ${PREFIX}
-┊
-╭┈❪👑ฺꕸ▸ *MENU DONO*
-┊
-┊•.‌𖥨֗🍓⭟${PREFIX}set-menu-image
-┊•.‌𖥨֗🍓⭟${PREFIX}trava
-┊
-╭┈❪🛡️ฺꕸ▸ *MENU ADMIN*
-┊
-┊•.‌𖥨֗🍓⭟${PREFIX}abrir
-┊•.‌𖥨֗🍓⭟${PREFIX}fechar
-┊•.‌𖥨֗🍓⭟${PREFIX}ban
-┊•.‌𖥨֗🍓⭟${PREFIX}promover
-┊•.‌𖥨֗🍓⭟${PREFIX}rebaixar
-┊•.‌𖥨֗🍓⭟${PREFIX}limpar
-┊•.‌𖥨֗🍓⭟${PREFIX}anti-link
-┊•.‌𖥨֗🍓⭟${PREFIX}welcome
-┊•.‌𖥨֗🍓⭟${PREFIX}hidetag
-┊
-╭┈❪🔍ฺꕸ▸ *MENU CONSULTAS*
-┊
-┊•.‌𖥨֗🍓⭟${PREFIX}consultacep
-┊•.‌𖥨֗🍓⭟${PREFIX}consultaip
-┊•.‌𖥨֗🍓⭟${PREFIX}consultacnpj
-┊•.‌𖥨֗🍓⭟${PREFIX}validarcpf
-┊•.‌𖥨֗🍓⭟${PREFIX}consultabim
-┊•.‌𖥨֗🍓⭟${PREFIX}consultadd
-┊•.‌𖥨֗🍓⭟${PREFIX}gerarcpf
-┊•.‌𖥨֗🍓⭟${PREFIX}gerarcnh
-┊•.‌𖥨֗🍓⭟${PREFIX}gerartitulo
-┊•.‌𖥨֗🍓⭟${PREFIX}validartitulo
-┊
-╭┈❪🔧ฺꕸ▸ *MENU FERRAMENTAS*
-┊
-┊•.‌𖥨֗🍓⭟${PREFIX}ping
-┊•.‌𖥨֗🍓⭟${PREFIX}revelar
-┊•.‌𖥨֗🍓⭟${PREFIX}cep
-┊•.‌𖥨֗🍓⭟${PREFIX}perfil
-┊•.‌𖥨֗🍓⭟${PREFIX}google-search
-┊•.‌𖥨֗🍓⭟${PREFIX}yt-search
-┊
-╭┈❪🎵ฺꕸ▸ *MENU MÍDIA*
-┊
-┊•.‌𖥨֗🍓⭟${PREFIX}play
-┊•.‌𖥨֗🍓⭟${PREFIX}play-video
-┊•.‌𖥨֗🍓⭟${PREFIX}tik-tok
-┊•.‌𖥨֗🍓⭟${PREFIX}ttp
-┊•.‌𖥨֗🍓⭟${PREFIX}to-image
-┊
-╭┈❪🤖ฺꕸ▸ *MENU IA*
-┊
-┊•.‌𖥨֗🍓⭟${PREFIX}gemini
-┊•.‌𖥨֗🍓⭟${PREFIX}ia-sticker
-┊•.‌𖥨֗🍓⭟${PREFIX}pixart
-┊•.‌𖥨֗🍓⭟${PREFIX}stable-diffusion-turbo
-┊
-╭┈❪🎭ฺꕸ▸ *MENU JOGOS/DIVERSÃO*
-┊
-┊•.‌𖥨֗🍓⭟${PREFIX}cassanic
-┊•.‌𖥨֗🍓⭟${PREFIX}matar
-┊•.‌𖥨֗🍓⭟${PREFIX}dado
-┊•.‌𖥨֗🍓⭟${PREFIX}beijar
-┊•.‌𖥨֗🍓⭟${PREFIX}abracar
-┊•.‌𖥨֗🍓⭟${PREFIX}socar
-┊
-╭┈❪✨ฺꕸ▸ *MENU EFEITOS*
-┊
-┊•.‌𖥨֗🍓⭟${PREFIX}blur
-┊•.‌𖥨֗🍓⭟${PREFIX}cadeia
-┊•.‌𖥨֗🍓⭟${PREFIX}rip
-┊•.‌𖥨֗🍓⭟${PREFIX}inverter
-┊•.‌𖥨֗🍓⭟${PREFIX}bolsonaro
-╰─┈┈┈┈┈◜❁◞┈┈┈┈┈─╯
+📦 𝕴𝖓𝖋𝖔𝖗𝖒𝖆çõ𝖊𝖘
+⛧ Versão: ${packageInfo.version}
+⛧ Data: ${date.toLocaleDateString("pt-br")}
+⛧ Hora: ${date.toLocaleTimeString("pt-br")}
+⛧ Prefixo: ${PREFIX}
+
+╭─⊹⊱ ✠ 𝕯𝖔𝖓𝖔 ✠ ⊰⊹─╮
+┃ ${PREFIX}set-menu-image ⟶ muda imagem do menu
+╰────────────────────╯
+
+╭─⊹⊱ 🛡️ 𝔄𝔡𝔪𝔦𝔫𝔦𝔰𝔱𝔯𝔞çã𝔬 ⊰⊹─╮
+| ${PREFIX}menurpg (Versao inicial)
+┃ ${PREFIX}abrir / fechar ⟶ controla grupo
+┃ ${PREFIX}ban ⟶ remove usuário
+┃ ${PREFIX}promover / rebaixar ⟶ cargos
+┃ ${PREFIX}limpar ⟶ limpa mensagens
+┃ ${PREFIX}anti-link ⟶ ativa bloqueio
+┃ ${PREFIX}welcome ⟶ ativa mensagens de boas-vindas
+| ${PRREFIX}exit ⟶ ativa mensagens de saida
+| ${PREFIX}hidetag ⟶ marca todos do grupo
+╰────────────────────────╯
+
+╭─⊹⊱ 🔍 𝕮𝖔𝖓𝖘𝖚𝖑𝖙𝖆𝖘 ⊰⊹─╮
+┃ ${PREFIX}consultacep ⟶ CEP via API
+┃ ${PREFIX}consultaip ⟶ dados de IP
+┃ ${PREFIX}consultacnpj ⟶ CNPJ empresa
+┃ ${PREFIX}validarcpf ⟶ checa CPF
+┃ ${PREFIX}consultabim / consultadd ⟶ dados básicos
+┃ ${PREFIX}gerarcpf / gerarcnh / gerartitulo
+┃ ${PREFIX}validartitulo ⟶ confirma título de eleitor
+╰────────────────────────╯
+
+╭─⊹⊱ 🔧 𝕱𝖊𝖗𝖗𝖆𝖒𝖊𝖓𝖙𝖆𝖘 ⊰⊹─╮
+┃ ${PREFIX}ping ⟶ velocidade do bot
+┃ ${PREFIX}revelar ⟶ detecta número real
+┃ ${PREFIX}perfil ⟶ info do usuário
+┃ ${PREFIX}google-search ⟶ pesquisa web
+┃ ${PREFIX}yt-search ⟶ busca no YouTube
+╰────────────────────────╯
+
+╭─⊹⊱ 🎵 𝕸í𝖉𝖎𝖆 & 𝕯𝖔𝖜𝖓 ⊰⊹─╮
+┃ ${PREFIX}play / play-video ⟶ toca áudio/vídeo
+┃ ${PREFIX}tik-tok ⟶ envia vídeo do tiktok
+┃ ${PREFIX}ttp ⟶ texto em sticker
+┃ ${PREFIX}to-image ⟶ sticker em imagem
+╰────────────────────────╯
+
+╭─⊹⊱ 🤖 𝕴𝖓𝖙𝖊𝖑𝖎𝖌ê𝖓𝖈𝖎𝖆 𝕬𝖗𝖙𝖎𝖋𝖎𝖈𝖎𝖆𝖑 ⊰⊹─╮
+┃ ${PREFIX}gemini ⟶ IA para conversas
+┃ ${PREFIX}ia-sticker ⟶ IA cria figurinhas
+┃ ${PREFIX}pixart ⟶ IA com arte
+┃ ${PREFIX}stable-diffusion-turbo ⟶ gera imagem IA
+╰────────────────────────╯
+
+╭─⊹⊱ 🎭 𝕯𝖎𝖛𝖊𝖗𝖘ã𝖔 & 𝕵𝖔𝖌𝖔𝖘 ⊰⊹─╮
+| ${PREFIX}casar ⟶ se case uma pessoa
+┃ ${PREFIX}cassanic ⟶ caça-níquel aleatorio
+| ${PREFIX}lutar ⟶ inicia uma luta com uma pessoa
+| ${PREFIX}molestar ⟶ molesta uma pessoa (use com sabedoria kkk)
+┃ ${PREFIX}matar / socar ⟶ ações da um soco ou uma pessoa
+┃ ${PREFIX}dado ⟶ sorte aleatório
+┃ ${PREFIX}beijar / abracar ⟶ comandos afetivos
+╰────────────────────────╯
+
+╭─⊹⊱ ✨ 𝕰𝖋𝖊𝖎𝖙𝖔𝖘 𝕯𝖊 𝕴𝖒𝖆𝖌𝖊𝖒 ⊰⊹─╮
+┃ ${PREFIX}blur ⟶ aplica desfoque
+┃ ${PREFIX}cadeia / rip ⟶ efeitos meme
+┃ ${PREFIX}inverter ⟶ vira imagem
+┃ ${PREFIX}bolsonaro ⟶ coloca uma imagem dentro de uma tv com o bolsonaro apontando
+╰────────────────────────╯
+
+⛧━━━━━━━━━━━━━━━⛧
+✠ 𝕮𝖗é𝖉𝖎𝖙𝖔𝖘:
+⛧ Dono: @bragadev123
+⛧ Repo: github.com/braga2311/braga-bot
+⛧ Site social: EM DESENVOLVIMENTO
+⛧━━━━━━━━━━━━━━━⛧
 `;
 };
