@@ -1,28 +1,27 @@
-/**
- * Utilize este arquivo para definir as mensagens de boas-vindas e despedidas do grupo.
- * As mensagens podem conter a menção ao membro que entrou ou saiu do grupo.
- * Você pode personalizar as mensagens conforme necessário.
- *
- * Para colocar a menção ao membro, use "@member" na mensagem.
- *
- * @author Dev Gui
- * Expansão e melhoria de texro.
- */
 module.exports = {
   welcomeMessage: `
-🌟 *Bem-vindo(a) ao grupo,* @member! 🌟
+╔═════ஓ๑🌟๑ஓ═════╗
+   *𝖘𝖊𝖏𝖆 𝖇𝖊𝖒-𝖛𝖎𝖓𝖉𝖔,* @member!
+╚═════ஓ๑🌟๑ஓ═════╝
 
-» Leia as regras em /regras
-» Respeite todos os membros
-» Divirta-se! 🎉
+⛧ Consulte as regras: !regras  
+⛧ Respeite todos os membros  
+⛧ Compartilhe conteúdo com bom senso  
 
-> Esperamos que você aproveite sua estadia aqui! 😊
+╭─────────────༺★༻────────────╮  
+  ➤ *Aproveite sua estadia.*  
+╰─────────────༺★༻────────────╯
   `,
-  
-  exitMessage: `
-⚠️ *Até mais,* @member! ⚠️
 
-Sentiremos sua falta... 😔
-Se foi sem querer, sinta-se à vontade para voltar! 🚪🔙
+  exitMessage: `
+╔═༺⚠️༻═╗
+ *@member saiu do grupo...*  
+╚═༺⚠️༻═╝
+
+✞ O grupo está *1% mais leve.*  
+✞ *Não* derramaremos uma lágrima.  
+✞ Até nunca mais (ou até a próxima).
+
+> *─ 𝔉𝔦𝔪 ─*
   `
 };
