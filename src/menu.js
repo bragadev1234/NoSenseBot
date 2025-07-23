@@ -29,7 +29,7 @@ exports.menuMessage = (senderName) => {
 ┃ ${PREFIX}anti-link ⟶ ativa bloqueio
 ┃ ${PREFIX}welcome ⟶ ativa mensagens de boas-vindas
 | ${PRREFIX}exit ⟶ ativa mensagens de saida
-| ${PREFIX}hidetag ⟶ marca todos do grupo
+| ${PREFIX}marcartodos ⟶ marca todos do grupo
 ╰────────────────────────╯
 
 ╭─⊹⊱ 🔍 𝕮𝖔𝖓𝖘𝖚𝖑𝖙𝖆𝖘 ⊰⊹─╮
