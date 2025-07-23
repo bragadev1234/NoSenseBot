@@ -1,9 +1,9 @@
 const { PREFIX } = require(`${BASE_DIR}/config`);
 
 module.exports = {
-  name: "hide-tag",
+  name: "marcartodos",
   description: "Este comando marcará todos do grupo",
-  commands: ["hide-tag", "to-tag"],
+  commands: ["marcartodos"],
   usage: `${PREFIX}hidetag motivo`,
   /**
    * @param {CommandHandleProps} props
