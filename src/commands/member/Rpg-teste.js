@@ -51,7 +51,7 @@ const REGIOES = {
   }
 };
 
-// Lista de empregos (mantida igual)
+// Lista de empregos
 const EMPREGOS = {
   FAZENDEIRO: { nome: "👨‍🌾 Fazendeiro", emoji: "👨‍🌾", cooldown: 10, ganho: { min: 15, max: 30 }, xp: 2, desc: "Cultiva alimentos básicos para a vila", regiao: "VILAREJO" },
   PESCADOR: { nome: "🎣 Pescador", emoji: "🎣", cooldown: 12, ganho: { min: 18, max: 35 }, xp: 2, desc: "Pesca em rios e lagos locais", regiao: "VILAREJO" },
@@ -135,7 +135,7 @@ module.exports = {
 
     // Menu principal
     if (!comando || comando === 'menu') {
-      return sendText(
+      return sendReply(
         `🎮 *MENU RPG*\n\n💰 Saldo: ${user.gold}g\n📊 Nível: ${user.nivel}\n📍 ${REGIOES[user.regiao].nome}\n\n` +
         `🔹 *COMANDOS*\n▸ ${PREFIX}rpg menu\n▸ ${PREFIX}rpg empregos\n▸ ${PREFIX}trabalhar <emprego>\n` +
         `▸ ${PREFIX}rpg rank\n▸ ${PREFIX}rpg reino\n▸ ${PREFIX}rpg mudar <região>\n▸ ${PREFIX}rpg status`
@@ -144,7 +144,7 @@ module.exports = {
 
     // Comandos específicos
     if (comando === 'status') {
-      return sendText(
+      return sendReply(
         `📊 *STATUS*\n\n💰 ${user.gold}g\n✨ ${user.xp}/${xpParaProxNivel(user.nivel)} XP\n` +
         `📍 ${REGIOES[user.regiao].nome}\n\n⚔️ Força ${user.skills.forca} | Agilidade ${user.skills.agilidade} | Inteligência ${user.skills.inteligencia}`
       );
@@ -156,13 +156,13 @@ module.exports = {
       const top5 = rankGlobal.slice(0, 5).map((u, i) => 
         `${i+1}. @${u.userId} - ${u.gold}g (Nv. ${u.nivel})`
       ).join('\n');
-      return sendText(`🏆 *RANKING*\n\n${top5}\n\n📍 Sua posição: ${posicao}`);
+      return sendReply(`🏆 *RANKING*\n\n${top5}\n\n📍 Sua posição: ${posicao}`);
     }
 
     if (comando === 'reino') {
       const regiao = REGIOES[user.regiao];
       const tesouro = realeza[user.regiao]?.tesouro || 0;
-      return sendText(
+      return sendReply(
         `🏰 *${regiao.nome}*\n\n💰 Tesouro: ${tesouro}g\nℹ️ ${regiao.desc}`
       );
     }
@@ -170,17 +170,17 @@ module.exports = {
     if (comando === 'mudar') {
       const regiaoDesejada = args[1]?.toUpperCase();
       if (!REGIOES[regiaoDesejada]) {
-        return sendText(
+        return sendReply(
           `🌍 *MUDAR REGIÃO*\n\nCusto: 200g\nRegiões:\n` +
           Object.entries(REGIOES).map(([k,v]) => `▸ ${v.nome}: ${PREFIX}rpg mudar ${k.toLowerCase()}`).join('\n')
         );
       }
       
-      if (user.gold < 200) return sendText(`❌ Precisa de 200g para viajar!`);
+      if (user.gold < 200) return sendReply(`❌ Precisa de 200g para viajar!`);
       
       user.gold -= 200;
       user.regiao = regiaoDesejada;
-      return sendText(
+      return sendReply(
         `✈️ Chegou em ${REGIOES[regiaoDesejada].nome}\n💰 Saldo: ${user.gold}g`
       );
     }
@@ -190,10 +190,10 @@ module.exports = {
         .filter(e => e.regiao === user.regiao || user.nivel >= 5)
         .map(e => `${e.emoji} ${e.nome}: ${PREFIX}trabalhar ${e.nome.split(' ')[1].toLowerCase()}`)
         .join('\n');
-      return sendText(`💼 *EMPREGOS*\n\n${empregos}`);
+      return sendReply(`💼 *EMPREGOS*\n\n${empregos}`);
     }
 
-    return sendText(`❌ Comando inválido. Use ${PREFIX}rpg menu`);
+    return sendReply(`❌ Comando inválido. Use ${PREFIX}rpg menu`);
   }
 };
 
@@ -204,32 +204,33 @@ module.exports.trabalhar = {
   commands: ["trabalhar", "work"],
   usage: `${PREFIX}trabalhar <emprego>`,
   
-  handle: async ({ sendText, userJid, args }) => {
+  handle: async ({ sendReply, userJid, args }) => {
     const userId = onlyNumbers(userJid);
-    if (!rpgData[userId]) return sendText(`❌ Use ${PREFIX}rpg menu primeiro`);
+    if (!rpgData[userId]) return sendReply(`❌ Use ${PREFIX}rpg menu primeiro`);
 
     const user = rpgData[userId];
     aplicarImpostos(userId);
     const trabalhoArg = args[0]?.toLowerCase();
-    if (!trabalhoArg) return sendText(`💼 Use: ${PREFIX}trabalhar <emprego>`);
+    if (!trabalhoArg) return sendReply(`💼 Use: ${PREFIX}trabalhar <emprego>`);
 
     const emprego = Object.values(EMPREGOS).find(e => 
       e.nome.toLowerCase().includes(trabalhoArg)
     );
-    if (!emprego) return sendText(`❌ Emprego não encontrado!`);
+    if (!emprego) return sendReply(`❌ Emprego não encontrado!`);
 
     // Verificações
     if (emprego.regiao !== user.regiao && user.nivel < 5) {
-      return sendText(`❌ Precisa estar em ${REGIOES[emprego.regiao].nome} ou nível 5+`);
+      return sendReply(`❌ Precisa estar em ${REGIOES[emprego.regiao].nome} ou nível 5+`);
     }
 
     if (emprego.requisito && !verificarRequisito(user, emprego.requisito)) {
-      return sendText(`🔒 Requisito: ${emprego.requisito}`);
+      return sendReply(`🔒 Requisito: ${emprego.requisito}`);
     }
 
-    if (user.cooldowns[emprego.nome] > Date.now()) {
-      const segundos = Math.ceil((user.cooldowns[emprego.nome] - Date.now()) / 1000);
-      return sendText(`⏳ Aguarde ${segundos}s para trabalhar novamente`);
+    const agora = Date.now();
+    if (user.cooldowns[emprego.nome] > agora) {
+      const segundos = Math.ceil((user.cooldowns[emprego.nome] - agora) / 1000);
+      return sendReply(`⏳ Aguarde ${segundos}s para trabalhar novamente`);
     }
 
     // Trabalhar
@@ -241,10 +242,13 @@ module.exports.trabalhar = {
       ganho = -Math.floor(ganho * 0.5);
     }
 
+    // Aplicar bônus de região
+    ganho += Math.floor(ganho * REGIOES[user.regiao].bonus);
+
     // Atualizar dados
     user.gold += ganho;
     user.xp += (resultado === 'sucesso') ? emprego.xp : Math.floor(emprego.xp * 0.5);
-    user.cooldowns[emprego.nome] = Date.now() + (emprego.cooldown * 1000);
+    user.cooldowns[emprego.nome] = agora + (emprego.cooldown * 1000);
     
     // Melhorar habilidades
     if (resultado === 'sucesso') {
@@ -253,12 +257,22 @@ module.exports.trabalhar = {
       else if (emprego.nome.includes('Mago') || emprego.nome.includes('Alquimista')) user.skills.inteligencia += 0.1;
     }
 
+    // Verificar nível
+    const novoNivel = calcularNivel(user.xp);
+    if (novoNivel > user.nivel) {
+      user.nivel = novoNivel;
+    }
+
     // Mensagem de resultado
     let mensagem = `💰 *${resultado.toUpperCase()}*\n${emprego.emoji} ${emprego.nome}\n`;
     mensagem += `🪙 ${ganho >= 0 ? '+' : ''}${ganho}g | ✨ ${emprego.xp} XP\n`;
     mensagem += `⏱️ Próximo trabalho em ${emprego.cooldown}s`;
 
-    await sendText(mensagem);
+    if (novoNivel > user.nivel) {
+      mensagem += `\n🎉 Subiu para nível ${novoNivel}!`;
+    }
+
+    await sendReply(mensagem);
     atualizarRank();
   }
 };
