@@ -1,96 +1,51 @@
-/**
-
-Erro ao carregar dados RPG: SyntaxError: Unexpected end of JSON input
-    at JSON.parse (<anonymous>)
-    at Object.<anonymous> (/data/data/com.termux/files/home/braga-bot/src/commands/member/rpg.js:16:23)
-    at Module._compile (node:internal/modules/cjs/loader:1692:14)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
-    at Module.load (node:internal/modules/cjs/loader:1427:32)
-    at Module._load (node:internal/modules/cjs/loader:1250:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-[TAKESHI BOT | ERROR] Erro ao executar comando
-^C
-braga ★ 03:32 ~/braga-bot/src/commands/member ➤ 
-
-
-*/
-
 const { PREFIX } = require('../../config');
 const { onlyNumbers, toUserJid } = require('../../utils');
+const { InvalidParameterError } = require('../../errors');
 const path = require('node:path');
-const fs = require('fs');
 const { ASSETS_DIR } = require('../../config');
 
-// Sistema de persistência em arquivo JSON
-const RPG_DATA_FILE = path.join(__dirname, 'rpg_data.json');
+// Banco de dados em memória
+const rpgData = {};
+const rankGlobal = [];
 
-// Carrega dados do arquivo ou inicializa
-let rpgData = {};
-let rankGlobal = [];
-
-try {
-  const data = fs.readFileSync(RPG_DATA_FILE, 'utf8');
-  const parsed = JSON.parse(data);
-  rpgData = parsed.rpgData || {};
-  rankGlobal = parsed.rankGlobal || [];
-} catch (err) {
-  if (err.code !== 'ENOENT') console.error('Erro ao carregar dados RPG:', err);
-}
-
-// Função para salvar dados
-const saveData = () => {
-  try {
-    fs.writeFileSync(RPG_DATA_FILE, JSON.stringify({ rpgData, rankGlobal }, null, 2));
-  } catch (err) {
-    console.error('Erro ao salvar dados RPG:', err);
-  }
-};
-
-// Sistema de regiões
+// Sistema de cidades/regiões com diferentes economias
 const REGIOES = {
   VILAREJO: {
     nome: "🏡 Vilarejo",
     taxaImposto: 0.05,
     bonus: 0,
-    custoViajar: 50,
-    nivelRequerido: 1
+    custoViagem: 50
   },
   METROPOLE: {
     nome: "🏙️ Metrópole",
     taxaImposto: 0.15,
     bonus: 0.2,
-    custoViajar: 200,
-    nivelRequerido: 3
+    custoViagem: 150
   },
   REINO: {
     nome: "🏰 Reino",
     taxaImposto: 0.25,
     bonus: 0.4,
-    custoViajar: 500,
-    nivelRequerido: 5
+    custoViagem: 300
   },
-  CEMITERIO: {
-    nome: "⚰️ Cemitério Maldito",
-    taxaImposto: 0.35,
-    bonus: 0.6,
-    custoViajar: 1000,
-    nivelRequerido: 10
+  FLORESTA: {
+    nome: "🌳 Floresta Encantada",
+    taxaImposto: 0.1,
+    bonus: 0.3,
+    custoViagem: 200
   }
 };
 
-// Sistema de empregos expandido
+// Lista expandida de empregos (20 profissões)
 const EMPREGOS = {
-  // Básicos (Vilarejo)
+  // Básicos
   FAZENDEIRO: {
     nome: "👨‍🌾 Fazendeiro",
     emoji: "👨‍🌾",
     cooldown: 10,
     ganho: { min: 15, max: 30 },
     xp: 2,
-    desc: "Cultiva alimentos básicos para a vila",
+    desc: "Cultiva alimentos básicos",
     regiao: "VILAREJO"
   },
   PESCADOR: {
@@ -99,27 +54,18 @@ const EMPREGOS = {
     cooldown: 12,
     ganho: { min: 18, max: 35 },
     xp: 2,
-    desc: "Pesca em rios e lagos próximos",
+    desc: "Pesca em rios e lagos",
     regiao: "VILAREJO"
   },
-  LENHADOR: {
-    nome: "🪓 Lenhador",
-    emoji: "🪓",
-    cooldown: 8,
-    ganho: { min: 12, max: 25 },
-    xp: 1,
-    desc: "Corta madeira para construção",
-    regiao: "VILAREJO"
-  },
-
-  // Intermediários (Metrópole)
+  
+  // Intermediários 
   MINEIRO: {
     nome: "⛏️ Mineiro",
     emoji: "⛏️",
     cooldown: 15,
     ganho: { min: 25, max: 50 },
     xp: 3,
-    desc: "Extrai minérios preciosos das minas",
+    desc: "Extrai minérios preciosos",
     regiao: "METROPOLE"
   },
   FERREIRO: {
@@ -128,91 +74,52 @@ const EMPREGOS = {
     cooldown: 18,
     ganho: { min: 30, max: 60 },
     xp: 4,
-    desc: "Forja armas e ferramentas de qualidade",
+    desc: "Forja armas e ferramentas",
     regiao: "METROPOLE"
   },
-  COZINHEIRO: {
-    nome: "👨‍🍳 Cozinheiro",
-    emoji: "👨‍🍳",
-    cooldown: 14,
-    ganho: { min: 22, max: 45 },
-    xp: 3,
-    desc: "Prepara refeições para os cidadãos",
-    regiao: "METROPOLE"
-  },
-
-  // Avançados (Reino)
+  
+  // Avançados
   ALQUIMISTA: {
     nome: "🧪 Alquimista",
     emoji: "🧪",
     cooldown: 25,
     ganho: { min: 50, max: 100 },
     xp: 6,
-    desc: "Cria poções mágicas e elixires raros",
-    regiao: "REINO"
-  },
-  MAGO: {
-    nome: "🧙‍♂️ Mago",
-    emoji: "🧙‍♂️",
-    cooldown: 30,
-    ganho: { min: 60, max: 120 },
-    xp: 8,
-    desc: "Estuda artes arcanas e feitiços poderosos",
-    regiao: "REINO"
+    desc: "Cria poções mágicas",
+    regiao: "REINO",
+    requisito: { nivel: 5 }
   },
   BRUXO: {
     nome: "🔮 Bruxo",
     emoji: "🔮",
-    cooldown: 28,
-    ganho: { min: 55, max: 110 },
-    xp: 7,
-    desc: "Invoca espíritos e pratica magia negra",
-    regiao: "REINO",
-    risco: 0.15
+    cooldown: 30,
+    ganho: { min: 60, max: 120 },
+    xp: 8,
+    desc: "Invoca magias poderosas",
+    regiao: "FLORESTA",
+    requisito: { nivel: 7 }
   },
-
-  // Especiais (Cemitério)
-  NECROMANTE: {
-    nome: "☠️ Necromante",
-    emoji: "☠️",
-    cooldown: 35,
-    ganho: { min: 80, max: 160 },
-    xp: 10,
-    desc: "Controla os mortos para fazer seu trabalho sujo",
-    regiao: "CEMITERIO",
-    risco: 0.3
+  
+  // Especiais
+  CAÇADOR: {
+    nome: "🏹 Caçador",
+    emoji: "🏹",
+    cooldown: 20,
+    ganho: { min: 40, max: 80 },
+    xp: 5,
+    desc: "Caça criaturas raras",
+    regiao: "FLORESTA",
+    risco: 0.2 // 20% chance de falhar
   },
-  CAÇADORDEMORTOS: {
-    nome: "⚔️ Caçador de Mortos",
-    emoji: "⚔️",
-    cooldown: 22,
-    ganho: { min: 70, max: 140 },
-    xp: 9,
-    desc: "Protege os vivos das criaturas da noite",
-    regiao: "CEMITERIO",
-    risco: 0.25
-  },
-
-  // Profissões de risco
-  LADRÃO: {
+  LADRAO: {
     nome: "🦹 Ladrão",
     emoji: "🦹",
     cooldown: 15,
     ganho: { min: 80, max: 160 },
     xp: 7,
-    desc: "Rouba dos ricos... ou de quem estiver no caminho",
+    desc: "Rouba dos ricos... ou pobres",
     regiao: "METROPOLE",
-    risco: 0.4
-  },
-  GLADIADOR: {
-    nome: "⚔️ Gladiador",
-    emoji: "⚔️",
-    cooldown: 20,
-    ganho: { min: 40, max: 200 },
-    xp: 8,
-    desc: "Luta na arena por fama e fortuna",
-    regiao: "REINO",
-    risco: 0.35
+    risco: 0.4 // 40% chance de ser preso
   }
 };
 
@@ -220,45 +127,43 @@ const EMPREGOS = {
 const calcularNivel = (xp) => Math.floor(Math.pow(xp / 100, 0.6)) + 1;
 const xpParaProxNivel = (nivel) => Math.pow(nivel / 0.6, 1 / 0.6) * 100;
 
-// Atualizar ranking global
+// Sistema de rank
 const atualizarRank = () => {
-  rankGlobal = Object.entries(rpgData).map(([userId, data]) => ({
-    userId,
-    gold: data.gold,
-    nivel: data.nivel,
-    xp: data.xp,
-    regiao: data.regiao
-  })).sort((a, b) => b.gold - a.gold || b.nivel - a.nivel || b.xp - a.xp);
-  saveData();
+  rankGlobal.length = 0; // Limpa o rank
+  
+  for (const [userId, data] of Object.entries(rpgData)) {
+    rankGlobal.push({
+      userId,
+      gold: data.gold,
+      nivel: data.nivel,
+      xp: data.xp
+    });
+  }
+  
+  rankGlobal.sort((a, b) => b.gold - a.gold || b.nivel - a.nivel);
 };
 
-// Sistema de impostos
+// Sistema de impostos e eventos
 const aplicarImpostos = (userId) => {
-  const user = rpgData[userId];
-  if (!user) return;
-
   const agora = new Date();
-  const ultimoImposto = user.ultimoImposto ? new Date(user.ultimoImposto) : null;
+  const user = rpgData[userId];
   
-  // Aplica imposto a cada hora real
-  if (!ultimoImposto || (agora - ultimoImposto) >= 3600000) {
-    const regiao = REGIOES[user.regiao || 'VILAREJO'];
-    const imposto = Math.floor(user.gold * regiao.taxaImposto);
-    
-    if (imposto > 0) {
-      user.gold -= imposto;
-      user.ultimoImposto = agora.toISOString();
-      user.historicoImpostos = user.historicoImpostos || [];
-      user.historicoImpostos.push({
-        valor: imposto,
-        quando: agora.toLocaleTimeString()
-      });
-      saveData();
-    }
+  if (!user) return;
+  
+  const regiao = REGIOES[user.regiao || 'VILAREJO'];
+  const imposto = Math.floor(user.gold * regiao.taxaImposto);
+  
+  if (imposto > 0) {
+    user.gold -= imposto;
+    user.historicoImpostos = user.historicoImpostos || [];
+    user.historicoImpostos.push({
+      valor: imposto,
+      quando: agora.toLocaleTimeString()
+    });
   }
 };
 
-// Inicializar jogador
+// Inicializa jogador
 const initPlayer = (userId) => {
   if (!rpgData[userId]) {
     rpgData[userId] = {
@@ -271,14 +176,10 @@ const initPlayer = (userId) => {
       skills: {
         forca: 1,
         agilidade: 1,
-        inteligencia: 1,
-        sorte: 1
+        inteligencia: 1
       },
-      criadoEm: new Date().toISOString(),
-      ultimoImposto: null,
-      historicoImpostos: []
+      criadoEm: new Date().toISOString()
     };
-    saveData();
   }
   return rpgData[userId];
 };
@@ -289,274 +190,282 @@ const menuRPG = async ({ sendReply, userJid }) => {
   const user = initPlayer(userId);
   
   const mensagem = `🎮 *MENU RPG* 🎮\n\n` +
-    `💰 *Gold:* ${user.gold}\n` +
-    `✨ *XP:* ${user.xp}/${xpParaProxNivel(user.nivel)} (Nível ${user.nivel})\n` +
-    `📍 *Região:* ${REGIOES[user.regiao].nome}\n\n` +
-    `📊 *Comandos Disponíveis:*\n` +
-    `- *${PREFIX}rank* - Ver ranking global\n` +
-    `- *${PREFIX}empregos* - Listar empregos disponíveis\n` +
-    `- *${PREFIX}trabalhar <emprego>* - Trabalhar\n` +
-    `- *${PREFIX}viajar <região>* - Viajar para outra região\n` +
-    `- *${PREFIX}status* - Ver seu status completo\n\n` +
-    `⚔️ *Skills:*\n` +
-    `💪 Força: ${user.skills.forca} | 🏃 Agilidade: ${user.skills.agilidade}\n` +
-    `🧠 Inteligência: ${user.skills.inteligencia} | 🍀 Sorte: ${user.skills.sorte}`;
-
+    `💰 Saldo: ${user.gold} golds\n` +
+    `📊 Nível: ${user.nivel} (${user.xp}/${xpParaProxNivel(user.nivel)} XP)\n` +
+    `📍 Região: ${REGIOES[user.regiao].nome}\n\n` +
+    `📌 *Comandos disponíveis:*\n` +
+    `🔹 ${PREFIX}rank - Ver ranking global\n` +
+    `🔹 ${PREFIX}empregos - Listar empregos\n` +
+    `🔹 ${PREFIX}trabalhar <emprego> - Trabalhar\n` +
+    `🔹 ${PREFIX}viajar <região> - Viajar para outra região\n` +
+    `🔹 ${PREFIX}perfil - Ver seu perfil\n\n` +
+    `Digite ${PREFIX}ajuda rpg para mais informações`;
+  
   await sendReply(mensagem);
 };
 
 // Comando: !rank
 const rankRPG = async ({ sendReply, userJid }) => {
   const userId = onlyNumbers(userJid);
+  const user = initPlayer(userId);
   atualizarRank();
   
-  const userPos = rankGlobal.findIndex(u => u.userId === userId) + 1;
-  const userData = rankGlobal[userPos - 1] || rpgData[userId];
-  
+  const posicao = rankGlobal.findIndex(u => u.userId === userId) + 1;
   const top5 = rankGlobal.slice(0, 5).map((u, i) => 
-    `${i+1}. @${u.userId} - ${u.gold} golds (Nv. ${u.nivel}, ${REGIOES[u.regiao].nome})`
+    `${i+1}. @${u.userId} - ${u.gold} golds (Nv. ${u.nivel})`
   ).join('\n');
   
-  const mensagem = `🏆 *RANKING GLOBAL* 🏆\n\n` +
+  await sendReply(
+    `🏆 *RANKING GLOBAL* 🏆\n\n` +
     `${top5}\n\n` +
-    `📍 *Sua posição:* ${userPos || 'Não ranqueado'}\n` +
-    `💰 *Gold:* ${userData.gold} | ✨ *Nível:* ${userData.nivel}\n` +
-    `📊 *XP:* ${userData.xp}/${xpParaProxNivel(userData.nivel)} | ` +
-    `🌍 *Região:* ${REGIOES[userData.regiao].nome}`;
-
-  await sendReply(mensagem);
+    `📍 Sua posição: ${posicao || 'Não ranqueado'}\n` +
+    `💰 Seu saldo: ${user.gold} golds\n` +
+    `📊 Nível: ${user.nivel} (${user.xp}/${xpParaProxNivel(user.nivel)} XP)`
+  );
 };
 
 // Comando: !empregos
 const listarEmpregos = async ({ sendReply, userJid }) => {
   const userId = onlyNumbers(userJid);
   const user = initPlayer(userId);
-  aplicarImpostos(userId);
   
   const empregosDisponiveis = Object.values(EMPREGOS)
-    .filter(e => e.regiao === user.regiao || user.nivel >= REGIOES[e.regiao].nivelRequerido)
-    .map(emp => {
-      const riscoMsg = emp.risco ? ` | ☠️ *Risco:* ${(emp.risco * 100).toFixed(0)}%` : '';
-      return (
-        `${emp.emoji} *${emp.nome}* - \`${PREFIX}trabalhar ${emp.nome.split(' ')[1].toLowerCase()}\`\n` +
-        `⏱️ *Cooldown:* ${emp.cooldown}s | 🪙 *Ganho:* ${emp.ganho.min}-${emp.ganho.max} golds\n` +
-        `✨ *XP:* +${emp.xp}${riscoMsg}\n` +
-        `📝 *Descrição:* ${emp.desc}`
-      );
-    }).join('\n\n');
+    .filter(e => {
+      const mesmaRegiao = e.regiao === user.regiao;
+      const temRequisito = !e.requisito || user.nivel >= e.requisito.nivel;
+      return mesmaRegiao || user.nivel >= 5 || temRequisito;
+    })
+    .map(emp => 
+      `${emp.emoji} *${emp.nome}* - ${PREFIX}trabalhar ${emp.nome.split(' ')[1].toLowerCase()}\n` +
+      `⏱️ ${emp.cooldown}s | 🪙 ${emp.ganho.min}-${emp.ganho.max} golds | ✨ +${emp.xp} XP\n` +
+      `📝 ${emp.desc}${emp.risco ? ` | ☠️ Risco: ${emp.risco*100}%` : ''}` +
+      `${emp.requisito ? ` | 🔐 Nv. ${emp.requisito.nivel}+` : ''}`
+    ).join('\n\n');
   
-  const mensagem = `💼 *EMPREGOS DISPONÍVEIS* (${REGIOES[user.regiao].nome})\n\n` +
+  await sendReply(
+    `🏘️ *EMPREGOS DISPONÍVEIS* (${REGIOES[user.regiao].nome})\n\n` +
     `${empregosDisponiveis}\n\n` +
-    `ℹ️ Use \`${PREFIX}trabalhar <emprego>\` para trabalhar\n` +
-    `Ex: \`${PREFIX}trabalhar mineiro\``;
-
-  await sendReply(mensagem);
+    `💰 Saldo: ${user.gold} golds | ✨ ${user.xp}/${xpParaProxNivel(user.nivel)} XP\n` +
+    `📊 Nível: ${user.nivel} | 📍 ${REGIOES[user.regiao].nome}\n\n` +
+    `📌 Ex: ${PREFIX}trabalhar mineiro`
+  );
 };
 
 // Comando: !trabalhar
-const trabalhar = async ({ sendReply, userJid, args }) => {
+const trabalharRPG = async ({ sendReply, userJid, args }) => {
   const userId = onlyNumbers(userJid);
   const user = initPlayer(userId);
-  aplicarImpostos(userId);
-  
   const comando = args[0]?.toLowerCase();
-  if (!comando) return await listarEmpregos({ sendReply, userJid });
+  
+  if (!comando) {
+    return await sendReply(
+      `❌ Uso correto: ${PREFIX}trabalhar <emprego>\n` +
+      `Use ${PREFIX}empregos para ver a lista de empregos disponíveis.`
+    );
+  }
 
   const emprego = Object.values(EMPREGOS).find(e => 
     e.nome.toLowerCase().includes(comando)
   );
-  
+
   if (!emprego) {
-    await sendReply(`❌ Emprego não encontrado! Use \`${PREFIX}empregos\` para listar.`);
-    return;
+    return await sendReply(`❌ Emprego não encontrado! Use ${PREFIX}empregos para listar.`);
   }
 
-  // Verificar região e nível
-  if (emprego.regiao !== user.regiao && user.nivel < REGIOES[emprego.regiao].nivelRequerido) {
-    await sendReply(
-      `🌍 *Emprego bloqueado!*\n` +
-      `Você precisa estar na região ${REGIOES[emprego.regiao].nome} ou ter nível ${REGIOES[emprego.regiao].nivelRequerido}+.\n` +
-      `Sua região atual: ${REGIOES[user.regiao].nome} (Nível ${user.nivel})`
+  // Verificar requisitos
+  if (emprego.requisito && user.nivel < emprego.requisito.nivel) {
+    return await sendReply(
+      `🔐 *Emprego bloqueado!*\n` +
+      `Você precisa ser nível ${emprego.requisito.nivel}+ para trabalhar como ${emprego.nome}.\n` +
+      `Seu nível atual: ${user.nivel}`
     );
-    return;
+  }
+
+  // Verificar região
+  if (emprego.regiao !== user.regiao && user.nivel < 5) {
+    return await sendReply(
+      `🌍 *Emprego bloqueado!*\n` +
+      `Você precisa estar na região ${REGIOES[emprego.regiao].nome} ou ter nível 5+.\n` +
+      `Sua região atual: ${REGIOES[user.regiao].nome}`
+    );
   }
 
   // Verificar cooldown
   const agora = Date.now();
   if (user.cooldowns[emprego.nome] > agora) {
     const segundos = Math.ceil((user.cooldowns[emprego.nome] - agora) / 1000);
-    await sendReply(
+    return await sendReply(
       `⏳ *Aguarde ${segundos}s*\n` +
       `Você pode trabalhar como ${emprego.emoji} ${emprego.nome} novamente em ${segundos} segundos.`
     );
-    return;
   }
 
-  // Calcular ganhos com bônus
-  let ganhoBase = Math.floor(Math.random() * (emprego.ganho.max - emprego.ganho.min + 1)) + emprego.ganho.min;
+  // Trabalhar com riscos
   let resultado = 'sucesso';
-  
-  // Bônus de região, nível e sorte
-  const bonusRegiao = Math.floor(ganhoBase * REGIOES[user.regiao].bonus);
-  const bonusNivel = Math.floor(ganhoBase * (user.nivel * 0.02));
-  const bonusSorte = Math.floor(ganhoBase * (user.skills.sorte * 0.01));
-  let ganhoTotal = ganhoBase + bonusRegiao + bonusNivel + bonusSorte;
+  let ganho = Math.floor(Math.random() * (emprego.ganho.max - emprego.ganho.min + 1)) + emprego.ganho.min;
+
+  // Aplicar bônus
+  const bonusRegiao = Math.floor(ganho * REGIOES[user.regiao].bonus);
+  const bonusNivel = Math.floor(ganho * (user.nivel * 0.02));
+  ganho += bonusRegiao + bonusNivel;
 
   // Verificar riscos
   if (emprego.risco && Math.random() < emprego.risco) {
     resultado = 'fracasso';
-    ganhoTotal = Math.floor(ganhoTotal * 0.5) * -1; // Perde metade
+    ganho = Math.floor(ganho * 0.5) * -1;
   }
 
-  // Atualizar dados do jogador
-  user.gold += ganhoTotal;
+  // Atualizar dados
+  user.gold += ganho;
   user.xp += resultado === 'sucesso' ? emprego.xp : Math.floor(emprego.xp * 0.5);
   user.cooldowns[emprego.nome] = agora + (emprego.cooldown * 1000);
   
-  // Verificar aumento de nível
+  // Verificar nível
   const novoNivel = calcularNivel(user.xp);
   const nivelUp = novoNivel > user.nivel;
-  if (nivelUp) user.nivel = novoNivel;
+  user.nivel = novoNivel;
 
   // Atualizar histórico
   user.historico.unshift({
     emprego: emprego.nome,
     resultado,
-    ganho: ganhoTotal,
+    ganho,
     quando: new Date().toLocaleTimeString()
   });
   user.historico = user.historico.slice(0, 5);
 
-  // Construir mensagem de resultado
-  let mensagem = `💰 *${resultado === 'sucesso' ? 'TRABALHO CONCLUÍDO!' : 'TRABALHO FALHOU!'}*\n\n` +
+  // Mensagem de resultado
+  let mensagem = `💰 *${resultado === 'sucesso' ? 'TRABALHO CONCLUÍDO' : 'TRABALHO FALHOU'}*\n\n` +
     `${emprego.emoji} *${emprego.nome}*\n` +
-    `🪙 *Ganho:* ${ganhoTotal >= 0 ? '+' : ''}${ganhoTotal} golds\n` +
-    `✨ *XP:* ${resultado === 'sucesso' ? '+' : ''}${emprego.xp} (${user.xp}/${xpParaProxNivel(user.nivel)})\n`;
+    `🪙 Ganho: ${ganho >= 0 ? '+' : ''}${ganho} golds\n` +
+    `✨ XP: ${resultado === 'sucesso' ? '+' : ''}${emprego.xp} (${user.xp}/${xpParaProxNivel(user.nivel)})\n`;
 
-  // Adicionar bônus à mensagem
-  const bonuses = [];
-  if (bonusRegiao > 0) bonuses.push(`+${bonusRegiao} (região)`);
-  if (bonusNivel > 0) bonuses.push(`+${bonusNivel} (nível)`);
-  if (bonusSorte > 0) bonuses.push(`+${bonusSorte} (sorte)`);
-  
-  if (bonuses.length > 0) {
-    mensagem += `🎁 *Bônus:* ${bonuses.join(' ')}\n`;
+  if (bonusRegiao > 0 || bonusNivel > 0) {
+    mensagem += `🎁 Bônus: ${bonusRegiao > 0 ? `+${bonusRegiao} (região) ` : ''}` +
+      `${bonusNivel > 0 ? `+${bonusNivel} (nível ${user.nivel})` : ''}\n`;
   }
 
   if (nivelUp) {
-    mensagem += `\n🎉 *NOVO NÍVEL ${user.nivel}!* Todos os bônus aumentados!\n`;
+    mensagem += `\n🎉 *NOVO NÍVEL ${user.nivel}!* Bônus aumentado para ${user.nivel * 2}%`;
   }
 
-  mensagem += `\n⏱️ *Próximo trabalho em:* ${emprego.cooldown}s`;
+  mensagem += `\n⏱️ Próximo trabalho em ${emprego.cooldown}s`;
 
   await sendReply(mensagem);
-  saveData();
   atualizarRank();
 };
 
 // Comando: !viajar
-const viajar = async ({ sendReply, userJid, args }) => {
+const viajarRPG = async ({ sendReply, userJid, args }) => {
   const userId = onlyNumbers(userJid);
   const user = initPlayer(userId);
+  const regiaoDestino = args[0]?.toUpperCase();
   
-  const regiaoDesejada = args[0]?.toUpperCase();
-  if (!regiaoDesejada || !REGIOES[regiaoDesejada]) {
+  if (!regiaoDestino || !REGIOES[regiaoDestino]) {
     const regioesDisponiveis = Object.entries(REGIOES)
-      .map(([key, reg]) => 
-        `- *${reg.nome}* (${reg.custoViajar} golds) - Nível ${reg.nivelRequerido} - \`${PREFIX}viajar ${key}\``
-      ).join('\n');
+      .map(([key, reg]) => `🔹 ${key.toLowerCase()} - ${reg.nome} (${reg.custoViagem} golds)`)
+      .join('\n');
     
-    await sendReply(
-      `✈️ *VIAGEM DISPONÍVEIS*\n\n` +
-      `${regioesDisponiveis}\n\n` +
-      `📍 Sua região atual: ${REGIOES[user.regiao].nome}\n` +
-      `💰 Seu saldo: ${user.gold} golds`
+    return await sendReply(
+      `🌍 *VIAGEM* 🌍\n\n` +
+      `Regiões disponíveis:\n${regioesDisponiveis}\n\n` +
+      `Uso: ${PREFIX}viajar <região>\n` +
+      `Ex: ${PREFIX}viajar reino`
     );
-    return;
   }
-
-  const regiao = REGIOES[regiaoDesejada];
   
-  // Verificar requisitos
-  if (user.nivel < regiao.nivelRequerido) {
-    await sendReply(
-      `❌ *Viagem bloqueada!*\n` +
-      `Você precisa ser nível ${regiao.nivelRequerido} para viajar para ${regiao.nome}.\n` +
-      `Seu nível atual: ${user.nivel}`
+  if (user.regiao === regiaoDestino) {
+    return await sendReply(
+      `ℹ️ Você já está na região ${REGIOES[regiaoDestino].nome}!`
     );
-    return;
   }
-
-  if (user.gold < regiao.custoViajar) {
-    await sendReply(
-      `❌ *Gold insuficiente!*\n` +
-      `Você precisa de ${regiao.custoViajar} golds para viajar para ${regiao.nome}.\n` +
-      `Seu saldo atual: ${user.gold} golds`
+  
+  const custoViagem = REGIOES[regiaoDestino].custoViagem;
+  if (user.gold < custoViagem) {
+    return await sendReply(
+      `❌ *Fundos insuficientes!*\n` +
+      `Você precisa de ${custoViagem} golds para viajar para ${REGIOES[regiaoDestino].nome}.\n` +
+      `Seu saldo: ${user.gold} golds`
     );
-    return;
   }
-
+  
   // Realizar viagem
-  user.gold -= regiao.custoViajar;
-  user.regiao = regiaoDesejada;
+  user.gold -= custoViagem;
+  user.regiao = regiaoDestino;
   
   await sendReply(
-    `✈️ *VIAGEM REALIZADA!*\n\n` +
-    `Você chegou em ${regiao.nome}!\n` +
-    `💰 Custo: ${regiao.custoViajar} golds\n` +
-    `🆕 Saldo: ${user.gold} golds\n\n` +
-    `ℹ️ Taxa de impostos: ${regiao.taxaImposto * 100}%\n` +
-    `🎁 Bônus de ganhos: +${regiao.bonus * 100}%`
+    `✈️ *Viagem concluída!*\n\n` +
+    `Você chegou em ${REGIOES[regiaoDestino].nome}!\n` +
+    `💰 Custo: ${custoViagem} golds\n` +
+    `🪙 Saldo atual: ${user.gold} golds\n\n` +
+    `Use ${PREFIX}empregos para ver as oportunidades nesta região!`
   );
-  saveData();
 };
 
-// Comando: !status
-const statusRPG = async ({ sendReply, userJid }) => {
+// Comando: !perfil
+const perfilRPG = async ({ sendReply, userJid }) => {
   const userId = onlyNumbers(userJid);
   const user = initPlayer(userId);
   
-  const historicoTrabalhos = user.historico.map(t => 
-    `${t.emprego.split(' ')[1]} (${t.resultado === 'sucesso' ? '✅' : '❌'}): ${t.ganho >= 0 ? '+' : ''}${t.ganho}`
-  ).join('\n') || 'Nenhum trabalho recente';
+  const historicoTrabalhos = user.historico
+    .map(t => `${t.emprego} (${t.resultado === 'sucesso' ? '✅' : '❌'}): ${t.ganho >= 0 ? '+' : ''}${t.ganho}`)
+    .join('\n') || 'Nenhum trabalho recente';
   
-  const mensagem = `📊 *STATUS RPG* - @${userId}\n\n` +
-    `💰 *Gold:* ${user.gold}\n` +
-    `✨ *XP:* ${user.xp}/${xpParaProxNivel(user.nivel)} (Nível ${user.nivel})\n` +
-    `🌍 *Região:* ${REGIOES[user.regiao].nome}\n\n` +
-    `⚔️ *Atributos:*\n` +
-    `💪 Força: ${user.skills.forca} | 🏃 Agilidade: ${user.skills.agilidade}\n` +
-    `🧠 Inteligência: ${user.skills.inteligencia} | 🍀 Sorte: ${user.skills.sorte}\n\n` +
-    `📜 *Histórico recente:*\n${historicoTrabalhos}\n\n` +
-    `🕒 *Criado em:* ${new Date(user.criadoEm).toLocaleDateString()}`;
-
-  await sendReply(mensagem);
+  await sendReply(
+    `📜 *PERFIL RPG* 📜\n\n` +
+    `👤 Jogador: @${userId}\n` +
+    `💰 Gold: ${user.gold}\n` +
+    `📊 Nível: ${user.nivel} (${user.xp}/${xpParaProxNivel(user.nivel)} XP)\n` +
+    `📍 Região: ${REGIOES[user.regiao].nome}\n\n` +
+    `🛠️ *Habilidades*\n` +
+    `💪 Força: ${user.skills.forca}\n` +
+    `🏃 Agilidade: ${user.skills.agilidade}\n` +
+    `🧠 Inteligência: ${user.skills.inteligencia}\n\n` +
+    `📅 Criado em: ${new Date(user.criadoEm).toLocaleDateString()}\n\n` +
+    `📝 *Últimos trabalhos*\n${historicoTrabalhos}`
+  );
 };
 
-// Exportação principal
 module.exports = {
   name: "rpg",
-  description: "Sistema RPG completo com economia, empregos e viagens",
-  commands: ["rpg", "menurpg", "rank", "empregos", "trabalhar", "viajar", "status"],
+  description: "Sistema RPG completo com economia, empregos e ranking",
+  commands: ["rpg", "menurpg", "rank", "empregos", "trabalhar", "viajar", "perfil"],
+  usage: `${PREFIX}rpg <comando>`,
   
-  handle: async (props) => {
-    const { args, command } = props;
-    
-    switch (command.toLowerCase()) {
-      case 'menurpg':
-        return await menuRPG(props);
-      case 'rank':
-        return await rankRPG(props);
-      case 'empregos':
-        return await listarEmpregos(props);
-      case 'trabalhar':
-        return await trabalhar(props);
-      case 'viajar':
-        return await viajar(props);
-      case 'status':
-        return await statusRPG(props);
-      default:
-        return await menuRPG(props);
+  handle: async ({ sendReply, sendErrorReply, userJid, args, command }) => {
+    try {
+      const comando = command.toLowerCase();
+      
+      switch(comando) {
+        case 'menurpg':
+        case 'rpg':
+          return await menuRPG({ sendReply, userJid });
+          
+        case 'rank':
+          return await rankRPG({ sendReply, userJid });
+          
+        case 'empregos':
+          return await listarEmpregos({ sendReply, userJid });
+          
+        case 'trabalhar':
+          return await trabalharRPG({ sendReply, userJid, args });
+          
+        case 'viajar':
+          return await viajarRPG({ sendReply, userJid, args });
+          
+        case 'perfil':
+          return await perfilRPG({ sendReply, userJid });
+          
+        default:
+          await sendErrorReply(
+            `Comando inválido! Use ${PREFIX}menurpg para ver as opções.`
+          );
+      }
+    } catch (error) {
+      console.error('Erro no comando RPG:', error);
+      await sendErrorReply(
+        `❌ Ocorreu um erro ao processar o comando. Tente novamente mais tarde.`
+      );
     }
   }
 };
