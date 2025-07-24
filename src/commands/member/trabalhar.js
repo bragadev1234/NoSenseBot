@@ -1,3 +1,35 @@
+/*
+Erro ao importar /data/data/com.termux/files/home/braga-bot/src/commands/member/trabalhar.js: Error: Cannot find module '../config'
+Require stack:
+- /data/data/com.termux/files/home/braga-bot/src/commands/member/trabalhar.js
+- /data/data/com.termux/files/home/braga-bot/src/utils/index.js
+- /data/data/com.termux/files/home/braga-bot/src/connection.js
+- /data/data/com.termux/files/home/braga-bot/src/index.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1369:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Module._load (node:internal/modules/cjs/loader:1179:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Module.require (node:internal/modules/cjs/loader:1449:12)
+    at require (node:internal/modules/helpers:135:16)
+    at Object.<anonymous> (/data/data/com.termux/files/home/braga-bot/src/commands/member/trabalhar.js:3:20)
+    at Module._compile (node:internal/modules/cjs/loader:1692:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/data/data/com.termux/files/home/braga-bot/src/commands/member/trabalhar.js',
+    '/data/data/com.termux/files/home/braga-bot/src/utils/index.js',
+    '/data/data/com.termux/files/home/braga-bot/src/connection.js',
+    '/data/data/com.termux/files/home/braga-bot/src/index.js'
+  ]
+}
+^C
+braga ★ 00:31 ~/braga-bot/src/commands/member ➤ 
+
+
+*/
+
+
 const path = require("node:path");
 const fs = require("node:fs").promises;
 const { PREFIX } = require("../config");
