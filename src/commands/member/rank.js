@@ -1,52 +1,43 @@
+const path = require('path');
+const fs = require('fs').promises;
 const { PREFIX } = require('../../config');
 const { onlyNumbers } = require('../../utils');
-const rpgDB = require('./rpgSystem');
+
+const ROLES = {
+  REI: { title: "👑 Rei", tax: 0.1 },
+  RAINHA: { title: "👸 Rainha", tax: 0.05 },
+  BRUXO: { title: "🧙‍♂️ Bruxo", canCurse: true },
+  MONSTRO: { title: "👹 Monstro", tax: 0.3 },
+  ESCRAVO: { title: "🪤 Escravo", tax: 0.2 },
+  PLEBEU: { title: "🧑 Plebeu", tax: 0 }
+};
+
+async function loadData() {
+  try {
+    return JSON.parse(await fs.readFile(path.join(__dirname, 'rpg_data.json'), 'utf8');
+  } catch {
+    return { users: {} };
+  }
+}
 
 module.exports = {
   name: "rank",
-  description: "Mostra o ranking de golds e níveis",
-  commands: ["rank", "ranking", "top"],
+  description: "Mostra o ranking do RPG",
+  commands: ["rank", "ranking"],
   usage: `${PREFIX}rank`,
-
-  handle: async ({ sendReply, userJid }) => {
-    try {
-      const ranking = rpgDB.getRanking();
-      
-      if (ranking.length === 0) {
-        await sendReply("📊 Nenhum jogador registrado ainda! Use !trabalhar para começar.");
-        return;
-      }
-
-      // Atribuir cargos
-      ranking.forEach((user, index) => {
-        if (index === 0) user.cargo = "👑 Rei";
-        else if (index === 1) user.cargo = "👸 Rainha";
-        else if (user.isMonster) user.cargo = "👹 Monstro";
-        else if (user.owner) user.cargo = "🪤 Escravo";
-        else user.cargo = "🧑 Plebeu";
-      });
-
-      // Construir mensagem
-      let message = "🏆 *RANKING RPG* 🏆\n\n";
-      ranking.slice(0, 10).forEach((user, index) => {
-        message += `${index + 1}. ${user.cargo} @${user.id}\n`;
-        message += `   💰 ${user.gold} golds | ✨ Nível ${user.nivel}`;
-        if (user.owner) message += ` | Dono: @${user.owner}`;
-        message += "\n\n";
-      });
-
-      // Adicionar posição do usuário se não estiver no top 10
-      const userId = onlyNumbers(userJid);
-      const userPos = ranking.findIndex(u => u.id === userId) + 1;
-      if (userPos > 10) {
-        const user = rpgDB.getUser(userId);
-        message += `\nSua posição: #${userPos} (${user.gold} golds)`;
-      }
-
-      await sendReply(message);
-    } catch (error) {
-      console.error("Erro no comando rank:", error);
-      await sendReply("❌ Ocorreu um erro ao gerar o ranking. Tente novamente mais tarde.");
-    }
+  
+  handle: async ({ sendText }) => {
+    const data = await loadData();
+    const ranked = Object.values(data.users)
+      .sort((a, b) => b.gold - a.gold)
+      .slice(0, 10);
+    
+    let message = "🏆 TOP 10 🏆\n\n";
+    ranked.forEach((user, i) => {
+      const role = ROLES[user.role] || ROLES.PLEBEU;
+      message += `${i+1}. ${role.title} @${user.id}\n   💰 ${user.gold} golds | 🎚️ Nv.${user.nivel}\n`;
+    });
+    
+    await sendText(message);
   }
 };
