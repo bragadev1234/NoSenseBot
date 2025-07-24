@@ -1,3 +1,20 @@
+/*
+Erro no comando RPG: TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at Object.handle (/data/data/com.termux/files/home/braga-bot/src/commands/member/rpg.js:437:31)
+    at exports.dynamicCommand (/data/data/com.termux/files/home/braga-bot/src/utils/dynamicCommand.js:116:19)
+    at async exports.onMessagesUpsert (/data/data/com.termux/files/home/braga-bot/src/middlewares/onMesssagesUpsert.js:71:9)
+    at async safeEventHandler (/data/data/com.termux/files/home/braga-bot/src/loader.js:19:7)
+Erro no comando RPG: TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at Object.handle (/data/data/com.termux/files/home/braga-bot/src/commands/member/rpg.js:437:31)
+    at exports.dynamicCommand (/data/data/com.termux/files/home/braga-bot/src/utils/dynamicCommand.js:116:19)
+    at async exports.onMessagesUpsert (/data/data/com.termux/files/home/braga-bot/src/middlewares/onMesssagesUpsert.js:71:9)
+    at async safeEventHandler (/data/data/com.termux/files/home/braga-bot/src/loader.js:19:7)
+^C
+braga ★ 03:41 ~/braga-bot/src/commands/member ➤ 
+
+
+*/
+
 const { PREFIX } = require('../../config');
 const { onlyNumbers, toUserJid } = require('../../utils');
 const { InvalidParameterError } = require('../../errors');
