@@ -1,54 +1,44 @@
-const { PREFIX } = require(`${BASE_DIR}/config`);
-const fs = require('node:fs').promises;
-const path = require('node:path');
-const { DB_DIR } = require(`${BASE_DIR}/config`);
+const { PREFIX } = require('../../config');
+const { onlyNumbers } = require('../../utils');
 
-const ROLES = {
-  KING: '👑 Rei',
-  QUEEN: '👸 Rainha',
-  COMMONER: '🧑 Plebeu',
-  SLAVE: '🪤 Escravo',
-  MONSTER: '👹 Monstro'
-};
+// Dados compartilhados
+const rpgData = {};
 
 module.exports = {
   name: "rank",
-  description: "Mostra o ranking de golds e cargos",
-  commands: ["rank", "ranking"],
+  description: "Mostra o ranking de golds e níveis",
+  commands: ["rank", "ranking", "top"],
   usage: `${PREFIX}rank`,
-  /**
-   * @param {CommandHandleProps} props
-   * @returns {Promise<void>}
-   */
-  handle: async ({ sendText, userJid }) => {
-    try {
-      const dbPath = path.resolve(DB_DIR, 'rpg_rank.json');
-      let rankData = [];
-      
-      try {
-        const data = await fs.readFile(dbPath, 'utf8');
-        rankData = JSON.parse(data);
-      } catch (err) {
-        if (err.code !== 'ENOENT') throw err;
-      }
+  
+  handle: async ({ sendText }) => {
+    // Converter objeto em array e ordenar
+    const ranking = Object.entries(rpgData)
+      .map(([userId, data]) => ({ userId, ...data }))
+      .sort((a, b) => b.gold - a.gold || b.nivel - a.nivel);
 
-      // Ordenar por gold (decrescente)
-      rankData.sort((a, b) => b.gold - a.gold);
-      
-      // Atualizar cargos
-      if (rankData.length > 0) rankData[0].role = ROLES.KING;
-      if (rankData.length > 1) rankData[1].role = ROLES.QUEEN;
-      
-      // Construir mensagem
-      let message = '🏆 Ranking RPG 🏆\n\n';
-      rankData.slice(0, 10).forEach((user, index) => {
-        message += `${index + 1}. ${user.role || ROLES.COMMONER} @${user.id} - ${user.gold} golds\n`;
-      });
-      
-      await sendText(message);
-    } catch (error) {
-      console.error('Error in rank command:', error);
-      await sendText('Ocorreu um erro ao mostrar o ranking.');
+    if (ranking.length === 0) {
+      await sendText("📊 Nenhum jogador registrado ainda! Use !trabalhar para começar.");
+      return;
     }
-  },
+
+    // Atribuir cargos aos top players
+    ranking.forEach((user, index) => {
+      if (index === 0) user.cargo = "👑 Rei";
+      else if (index === 1) user.cargo = "👸 Rainha";
+      else if (user.owner) user.cargo = "🪤 Escravo";
+      else if (user.monstro) user.cargo = "👹 Monstro";
+      else user.cargo = "🧑 Plebeu";
+    });
+
+    // Construir mensagem
+    let mensagem = "🏆 *RANKING RPG* 🏆\n\n";
+    ranking.slice(0, 10).forEach((user, index) => {
+      mensagem += `${index + 1}. ${user.cargo} @${user.userId}\n`;
+      mensagem += `   💰 ${user.gold} golds | ✨ Nível ${user.nivel}`;
+      if (user.owner) mensagem += ` | Dono: @${user.owner}`;
+      mensagem += "\n\n";
+    });
+
+    await sendText(mensagem);
+  }
 };
