@@ -4,116 +4,311 @@ const { onlyNumbers } = require('../../utils');
 // Banco de dados em memória
 const rpgData = {};
 const rankGlobal = [];
-const realeza = {};
 
-// Sistema de cidades/regiões
+// Sistema de cidades/regiões com diferentes economias
 const REGIOES = {
   VILAREJO: {
     nome: "🏡 Vilarejo",
     taxaImposto: 0.05,
     bonus: 0,
-    desc: "Um humilde vilarejo com oportunidades básicas",
-    realeza: {
-      rei: "Nenhum (Governo Comunitário)",
-      conselheiros: ["Aldeão Sábio", "Fazendeiro Chefe"]
-    }
+    nivelRequerido: 1
   },
   METROPOLE: {
     nome: "🏙️ Metrópole",
     taxaImposto: 0.15,
     bonus: 0.2,
-    desc: "Cidade movimentada com diversas profissões",
-    realeza: {
-      prefeito: "Governador Urbano",
-      vereadores: 12
-    }
+    nivelRequerido: 5
   },
   REINO: {
     nome: "🏰 Reino",
     taxaImposto: 0.25,
     bonus: 0.4,
-    desc: "Terra da realeza e magia",
-    realeza: {
-      rei: "Rei Arthur Pendragon",
-      rainha: "Rainha Guinevere",
-      nobres: ["Duque de Wellington", "Barão Vermelho", "Conde Drácula"]
-    }
+    nivelRequerido: 10
   },
-  SUBMUNDO: {
-    nome: "🕳️ Submundo",
+  IMPERIO: {
+    nome: "👑 Império",
     taxaImposto: 0.35,
-    bonus: 0.5,
-    desc: "Local perigoso com trabalhos ilegais",
-    realeza: {
-      lider: "Don Corleone",
-      capangas: ["Al Capone", "Pablo Escobar", "Dona Flor"]
-    }
+    bonus: 0.6,
+    nivelRequerido: 20
   }
 };
 
-// Lista de empregos
-const EMPREGOS = {
-  FAZENDEIRO: { nome: "👨‍🌾 Fazendeiro", emoji: "👨‍🌾", cooldown: 10, ganho: { min: 15, max: 30 }, xp: 2, desc: "Cultiva alimentos básicos para a vila", regiao: "VILAREJO" },
-  PESCADOR: { nome: "🎣 Pescador", emoji: "🎣", cooldown: 12, ganho: { min: 18, max: 35 }, xp: 2, desc: "Pesca em rios e lagos locais", regiao: "VILAREJO" },
-  LENHADOR: { nome: "🪓 Lenhador", emoji: "🪓", cooldown: 12, ganho: { min: 20, max: 40 }, xp: 2, desc: "Corta madeira para construção", regiao: "VILAREJO" },
-  MINEIRO: { nome: "⛏️ Mineiro", emoji: "⛏️", cooldown: 15, ganho: { min: 25, max: 50 }, xp: 3, desc: "Extrai minérios preciosos das minas", regiao: "METROPOLE" },
-  FERREIRO: { nome: "⚒️ Ferreiro", emoji: "⚒️", cooldown: 18, ganho: { min: 30, max: 60 }, xp: 4, desc: "Forja armas e ferramentas de qualidade", regiao: "METROPOLE" },
-  COZINHEIRO: { nome: "👨‍🍳 Cozinheiro", emoji: "👨‍🍳", cooldown: 15, ganho: { min: 25, max: 45 }, xp: 3, desc: "Prepara refeições deliciosas", regiao: "METROPOLE" },
-  ALQUIMISTA: { nome: "🧪 Alquimista", emoji: "🧪", cooldown: 25, ganho: { min: 50, max: 100 }, xp: 6, desc: "Cria poções mágicas e elixires raros", regiao: "REINO", requisito: "inteligencia > 3" },
-  MAGO: { nome: "🧙‍♂️ Mago", emoji: "🧙‍♂️", cooldown: 30, ganho: { min: 60, max: 120 }, xp: 8, desc: "Estuda artes arcanas e feitiços poderosos", regiao: "REINO", requisito: "inteligencia > 5" },
-  BRUXO: { nome: "🔮 Bruxo", emoji: "🔮", cooldown: 28, ganho: { min: 55, max: 110 }, xp: 7, desc: "Domina magias das trevas e previsões", regiao: "REINO", requisito: "inteligencia > 4" },
-  CAÇADOR: { nome: "🏹 Caçador", emoji: "🏹", cooldown: 20, ganho: { min: 40, max: 80 }, xp: 5, desc: "Caça criaturas raras e perigosas", regiao: "METROPOLE", risco: 0.2 },
-  LADRÃO: { nome: "🦹 Ladrão", emoji: "🦹", cooldown: 15, ganho: { min: 80, max: 160 }, xp: 7, desc: "Rouba dos ricos... ou de quem estiver no caminho", regiao: "SUBMUNDO", risco: 0.4 },
-  MACUMBEIRO: { nome: "⚰️ Macumbeiro", emoji: "⚰️", cooldown: 22, ganho: { min: 70, max: 140 }, xp: 6, desc: "Pratica rituais misteriosos e perigosos", regiao: "SUBMUNDO", risco: 0.3, requisito: "inteligencia > 2" },
-  GLADIADOR: { nome: "⚔️ Gladiador", emoji: "⚔️", cooldown: 18, ganho: { min: 45, max: 90 }, xp: 6, desc: "Luta na arena por fama e fortuna", regiao: "METROPOLE", risco: 0.25 }
+// Títulos de nobreza/realeza
+const TITULOS = {
+  PLEBEU: { nome: "Plebeu", bonus: 0, requisito: { gold: 0, nivel: 0 } },
+  NOBRE: { nome: "Nobre", bonus: 0.1, requisito: { gold: 5000, nivel: 15 } },
+  BARÃO: { nome: "Barão", bonus: 0.15, requisito: { gold: 10000, nivel: 20 } },
+  CONDE: { nome: "Conde", bonus: 0.2, requisito: { gold: 20000, nivel: 25 } },
+  DUQUE: { nome: "Duque", bonus: 0.25, requisito: { gold: 35000, nivel: 30 } },
+  PRINCIPE: { nome: "Príncipe", bonus: 0.3, requisito: { gold: 50000, nivel: 35 } },
+  REI: { nome: "Rei/Rainha", bonus: 0.4, requisito: { gold: 100000, nivel: 40 } }
 };
 
-// Funções básicas
+// Lista expandida de empregos (profissões)
+const EMPREGOS = {
+  // Básicos
+  FAZENDEIRO: {
+    nome: "👨‍🌾 Fazendeiro",
+    emoji: "👨‍🌾",
+    cooldown: 10,
+    ganho: { min: 15, max: 30 },
+    xp: 2,
+    desc: "Cultiva alimentos básicos",
+    regiao: "VILAREJO"
+  },
+  PESCADOR: {
+    nome: "🎣 Pescador",
+    emoji: "🎣",
+    cooldown: 12,
+    ganho: { min: 18, max: 35 },
+    xp: 2,
+    desc: "Pesca em rios e lagos",
+    regiao: "VILAREJO"
+  },
+  LENHADOR: {
+    nome: "🪓 Lenhador",
+    emoji: "🪓",
+    cooldown: 12,
+    ganho: { min: 20, max: 40 },
+    xp: 2,
+    desc: "Corta madeira para construção",
+    regiao: "VILAREJO"
+  },
+  
+  // Intermediários 
+  MINEIRO: {
+    nome: "⛏️ Mineiro",
+    emoji: "⛏️",
+    cooldown: 15,
+    ganho: { min: 25, max: 50 },
+    xp: 3,
+    desc: "Extrai minérios preciosos",
+    regiao: "METROPOLE"
+  },
+  FERREIRO: {
+    nome: "⚒️ Ferreiro",
+    emoji: "⚒️",
+    cooldown: 18,
+    ganho: { min: 30, max: 60 },
+    xp: 4,
+    desc: "Forja armas e ferramentas",
+    regiao: "METROPOLE"
+  },
+  MERCADOR: {
+    nome: "📦 Mercador",
+    emoji: "📦",
+    cooldown: 20,
+    ganho: { min: 35, max: 70 },
+    xp: 4,
+    desc: "Negocia mercadorias entre cidades",
+    regiao: "METROPOLE"
+  },
+  
+  // Avançados
+  ALQUIMISTA: {
+    nome: "🧪 Alquimista",
+    emoji: "🧪",
+    cooldown: 25,
+    ganho: { min: 50, max: 100 },
+    xp: 6,
+    desc: "Cria poções mágicas",
+    regiao: "REINO"
+  },
+  MAGO: {
+    nome: "🧙‍♂️ Mago",
+    emoji: "🧙‍♂️",
+    cooldown: 30,
+    ganho: { min: 60, max: 120 },
+    xp: 8,
+    desc: "Estuda artes arcanas",
+    regiao: "REINO"
+  },
+  TAROLOGO: {
+    nome: "🔮 Tarólogo",
+    emoji: "🔮",
+    cooldown: 28,
+    ganho: { min: 55, max: 110 },
+    xp: 7,
+    desc: "Lê o destino nas cartas",
+    regiao: "REINO",
+    risco: 0.1 // 10% chance de previsão errada
+  },
+  BRUXO: {
+    nome: "🪄 Bruxo",
+    emoji: "🪄",
+    cooldown: 32,
+    ganho: { min: 65, max: 130 },
+    xp: 9,
+    desc: "Pratica magia ancestral",
+    regiao: "REINO",
+    risco: 0.15 // 15% chance de magia falhar
+  },
+  
+  // Especiais
+  CAÇADOR: {
+    nome: "🏹 Caçador",
+    emoji: "🏹",
+    cooldown: 20,
+    ganho: { min: 40, max: 80 },
+    xp: 5,
+    desc: "Caça criaturas raras",
+    regiao: "METROPOLE",
+    risco: 0.2 // 20% chance de falhar
+  },
+  LADRÃO: {
+    nome: "🦹 Ladrão",
+    emoji: "🦹",
+    cooldown: 15,
+    ganho: { min: 80, max: 160 },
+    xp: 7,
+    desc: "Rouba dos ricos... ou pobres",
+    regiao: "METROPOLE",
+    risco: 0.4 // 40% chance de ser preso
+  },
+  SOLDADO: {
+    nome: "🛡️ Soldado",
+    emoji: "🛡️",
+    cooldown: 22,
+    ganho: { min: 45, max: 90 },
+    xp: 6,
+    desc: "Defende o reino",
+    regiao: "REINO",
+    risco: 0.25 // 25% chance de ferimento
+  },
+  CONSELHEIRO: {
+    nome: "💼 Conselheiro",
+    emoji: "💼",
+    cooldown: 35,
+    ganho: { min: 100, max: 200 },
+    xp: 10,
+    desc: "Aconselha a nobreza",
+    regiao: "IMPERIO"
+  },
+  GOVERNADOR: {
+    nome: "🏛️ Governador",
+    emoji: "🏛️",
+    cooldown: 40,
+    ganho: { min: 150, max: 300 },
+    xp: 15,
+    desc: "Administra uma província",
+    regiao: "IMPERIO",
+    requisito: { nivel: 25 }
+  }
+};
+
+// Sistema de níveis avançado
 const calcularNivel = (xp) => Math.floor(Math.pow(xp / 100, 0.6)) + 1;
 const xpParaProxNivel = (nivel) => Math.pow(nivel / 0.6, 1 / 0.6) * 100;
 
+// Sistema de rank
 const atualizarRank = () => {
-  rankGlobal.length = 0;
+  rankGlobal.length = 0; // Limpa o rank
+  
   for (const [userId, data] of Object.entries(rpgData)) {
-    rankGlobal.push({ userId, gold: data.gold, nivel: data.nivel, xp: data.xp, regiao: data.regiao });
+    rankGlobal.push({
+      userId,
+      gold: data.gold,
+      nivel: data.nivel,
+      xp: data.xp,
+      titulo: data.titulo || 'PLEBEU'
+    });
   }
-  rankGlobal.sort((a, b) => b.gold - a.gold || b.nivel - a.nivel);
+  
+  rankGlobal.sort((a, b) => {
+    // Ordena por título (se houver diferença)
+    const tituloA = Object.keys(TITULOS).indexOf(a.titulo);
+    const tituloB = Object.keys(TITULOS).indexOf(b.titulo);
+    
+    if (tituloB !== tituloA) return tituloB - tituloA;
+    // Se mesmo título, ordena por gold e nível
+    return b.gold - a.gold || b.nivel - a.nivel;
+  });
 };
 
-const aplicarImpostos = (userId) => {
+// Verificar e atualizar título do jogador
+const atualizarTitulo = (userId) => {
   const user = rpgData[userId];
   if (!user) return;
+  
+  const titulosPossiveis = Object.entries(TITULOS)
+    .filter(([_, dados]) => 
+      user.gold >= dados.requisito.gold && 
+      user.nivel >= dados.requisito.nivel
+    )
+    .sort((a, b) => 
+      b[1].requisito.gold - a[1].requisito.gold || 
+      b[1].requisito.nivel - a[1].requisito.nivel
+    );
+  
+  if (titulosPossiveis.length > 0) {
+    const novoTitulo = titulosPossiveis[0][0];
+    if (user.titulo !== novoTitulo) {
+      user.titulo = novoTitulo;
+      return TITULOS[novoTitulo].nome;
+    }
+  }
+  
+  return null;
+};
 
+// Sistema de impostos e eventos
+const aplicarImpostos = () => {
   const agora = new Date();
-  const diffHoras = (agora - (user.ultimoImposto || 0)) / (1000 * 60 * 60);
-
-  if (diffHoras >= 12) {
-    const imposto = Math.floor(user.gold * REGIOES[user.regiao || 'VILAREJO'].taxaImposto);
-    if (imposto > 0) {
-      user.gold -= imposto;
-      user.ultimoImposto = agora;
-      realeza[user.regiao] = realeza[user.regiao] || { tesouro: 0 };
-      realeza[user.regiao].tesouro += imposto;
+  
+  // Aplica a cada hora (simulação)
+  if (agora.getMinutes() === 0) {
+    for (const userId in rpgData) {
+      const user = rpgData[userId];
+      const regiao = REGIOES[user.regiao || 'VILAREJO'];
+      const imposto = Math.floor(user.gold * regiao.taxaImposto);
+      
+      if (imposto > 0) {
+        user.gold -= imposto;
+        user.historicoImpostos = user.historicoImpostos || [];
+        user.historicoImpostos.push({
+          valor: imposto,
+          quando: agora.toLocaleTimeString()
+        });
+        
+        // Se o jogador é um governante (Rei/Príncipe), ele recebe parte dos impostos
+        if (user.titulo === 'REI' || user.titulo === 'PRINCIPE') {
+          const bonusGovernante = Math.floor(imposto * 0.1); // 10% do imposto
+          user.gold += bonusGovernante;
+        }
+      }
     }
   }
 };
 
-const verificarRequisito = (user, requisito) => {
-  if (!requisito) return true;
-  const [skill, operador, valor] = requisito.split(' ');
-  return eval(`user.skills.${skill} ${operador} ${valor}`);
+// Sistema de mudança de região
+const mudarRegiao = (userId, novaRegiao) => {
+  const user = rpgData[userId];
+  if (!user) return false;
+  
+  const regiao = REGIOES[novaRegiao];
+  if (!regiao || user.nivel < regiao.nivelRequerido) {
+    return false;
+  }
+  
+  // Custo para mudar de região
+  const custo = user.nivel * 100;
+  if (user.gold < custo) return false;
+  
+  user.gold -= custo;
+  user.regiao = novaRegiao;
+  return true;
 };
 
-// Módulo RPG principal
 module.exports = {
-  name: "rpg",
-  description: "Sistema RPG completo",
-  commands: ["rpg"],
-  usage: `${PREFIX}rpg <menu|empregos|rank|reino|mudar|status>`,
+  name: "trabalhar",
+  description: "Sistema RPG de trabalhos com economia dinâmica",
+  commands: ["trabalhar", "work", "job", "emprego", "rpg"],
+  usage: `${PREFIX}trabalhar <emprego>\n${PREFIX}rpg status\n${PREFIX}rpg mudar <regiao>`,
   
   handle: async ({ sendText, userJid, args, sendReply }) => {
     const userId = onlyNumbers(userJid);
     const comando = args[0]?.toLowerCase();
+    const subComando = args[1]?.toLowerCase();
 
     // Inicialização do jogador
     if (!rpgData[userId]) {
@@ -122,157 +317,216 @@ module.exports = {
         xp: 0,
         nivel: 1,
         regiao: "VILAREJO",
+        titulo: "PLEBEU",
         cooldowns: {},
-        skills: { forca: 1, agilidade: 1, inteligencia: 1 },
         historico: [],
-        ultimoImposto: 0,
-        historicoImpostos: []
+        skills: {
+          forca: 1,
+          agilidade: 1,
+          inteligencia: 1,
+          carisma: 1
+        },
+        inventario: []
       };
     }
 
     const user = rpgData[userId];
-    aplicarImpostos(userId);
+    aplicarImpostos(); // Verifica impostos
 
-    // Menu principal
-    if (!comando || comando === 'menu') {
-      return sendReply(
-        `🎮 *MENU RPG*\n\n💰 Saldo: ${user.gold}g\n📊 Nível: ${user.nivel}\n📍 ${REGIOES[user.regiao].nome}\n\n` +
-        `🔹 *COMANDOS*\n▸ ${PREFIX}rpg menu\n▸ ${PREFIX}rpg empregos\n▸ ${PREFIX}trabalhar <emprego>\n` +
-        `▸ ${PREFIX}rpg rank\n▸ ${PREFIX}rpg reino\n▸ ${PREFIX}rpg mudar <região>\n▸ ${PREFIX}rpg status`
-      );
+    // Comando 'rpg status'
+    if (comando === 'rpg' && subComando === 'status') {
+      const tituloAtual = TITULOS[user.titulo].nome;
+      const novoStatus = atualizarTitulo(userId);
+      
+      let mensagemStatus = `👤 *STATUS RPG* 👤\n\n` +
+        `🏷️ Título: ${tituloAtual}${novoStatus ? ` → ${novoStatus}` : ''}\n` +
+        `💰 Gold: ${user.gold}\n` +
+        `📊 Nível: ${user.nivel} (${user.xp}/${xpParaProxNivel(user.nivel)} XP)\n` +
+        `📍 Região: ${REGIOES[user.regiao].nome}\n` +
+        `🛠️ Skills:\n` +
+        `💪 Força: ${user.skills.forca}\n` +
+        `🏃 Agilidade: ${user.skills.agilidade}\n` +
+        `🧠 Inteligência: ${user.skills.inteligencia}\n` +
+        `🎭 Carisma: ${user.skills.carisma}\n\n`;
+      
+      if (user.inventario.length > 0) {
+        mensagemStatus += `🎒 Inventário: ${user.inventario.join(', ')}`;
+      }
+      
+      return sendText(mensagemStatus);
     }
 
-    // Comandos específicos
-    if (comando === 'status') {
-      return sendReply(
-        `📊 *STATUS*\n\n💰 ${user.gold}g\n✨ ${user.xp}/${xpParaProxNivel(user.nivel)} XP\n` +
-        `📍 ${REGIOES[user.regiao].nome}\n\n⚔️ Força ${user.skills.forca} | Agilidade ${user.skills.agilidade} | Inteligência ${user.skills.inteligencia}`
-      );
+    // Comando 'rpg mudar'
+    if (comando === 'rpg' && subComando === 'mudar') {
+      const regiaoAlvo = args[2]?.toUpperCase();
+      if (!regiaoAlvo || !REGIOES[regiaoAlvo]) {
+        return sendText(
+          `🌍 *Regiões disponíveis:*\n\n` +
+          Object.entries(REGIOES).map(([key, reg]) => 
+            `${reg.nome} - ${PREFIX}rpg mudar ${key}\n` +
+            `📊 Nível requerido: ${reg.nivelRequerido}\n` +
+            `💰 Imposto: ${reg.taxaImposto*100}% | Bônus: +${reg.bonus*100}%`
+          ).join('\n')
+        );
+      }
+      
+      if (mudarRegiao(userId, regiaoAlvo)) {
+        return sendText(
+          `🌍 *Mudança de região bem-sucedida!*\n\n` +
+          `Você agora está em ${REGIOES[regiaoAlvo].nome}\n` +
+          `💰 Custo: ${user.nivel * 100} golds\n` +
+          `⚠️ Atenção: Impostos aqui são ${REGIOES[regiaoAlvo].taxaImposto*100}%`
+        );
+      } else {
+        return sendText(
+          `❌ *Falha ao mudar de região!*\n` +
+          `Verifique se você tem:\n` +
+          `- Gold suficiente (${user.nivel * 100} needed)\n` +
+          `- Nível requerido (${REGIOES[regiaoAlvo].nivelRequerido}+)\n` +
+          `Sua região atual: ${REGIOES[user.regiao].nome}`
+        );
+      }
     }
 
+    // Comando 'rank'
     if (comando === 'rank') {
       atualizarRank();
       const posicao = rankGlobal.findIndex(u => u.userId === userId) + 1;
       const top5 = rankGlobal.slice(0, 5).map((u, i) => 
-        `${i+1}. @${u.userId} - ${u.gold}g (Nv. ${u.nivel})`
+        `${i+1}. ${TITULOS[u.titulo].nome} @${u.userId} - ${u.gold} golds (Nv. ${u.nivel})`
       ).join('\n');
-      return sendReply(`🏆 *RANKING*\n\n${top5}\n\n📍 Sua posição: ${posicao}`);
-    }
-
-    if (comando === 'reino') {
-      const regiao = REGIOES[user.regiao];
-      const tesouro = realeza[user.regiao]?.tesouro || 0;
-      return sendReply(
-        `🏰 *${regiao.nome}*\n\n💰 Tesouro: ${tesouro}g\nℹ️ ${regiao.desc}`
+      
+      return sendText(
+        `🏆 *RANKING GLOBAL* 🏆\n\n` +
+        `${top5}\n\n` +
+        `📍 Sua posição: ${posicao || 'Não ranqueado'}\n` +
+        `🏷️ Seu título: ${TITULOS[user.titulo].nome}\n` +
+        `💰 Seu saldo: ${user.gold} golds\n` +
+        `📊 Nível: ${user.nivel} (${user.xp}/${xpParaProxNivel(user.nivel)} XP)`
       );
     }
 
-    if (comando === 'mudar') {
-      const regiaoDesejada = args[1]?.toUpperCase();
-      if (!REGIOES[regiaoDesejada]) {
-        return sendReply(
-          `🌍 *MUDAR REGIÃO*\n\nCusto: 200g\nRegiões:\n` +
-          Object.entries(REGIOES).map(([k,v]) => `▸ ${v.nome}: ${PREFIX}rpg mudar ${k.toLowerCase()}`).join('\n')
-        );
-      }
+    // Lista de empregos
+    if (!comando || !Object.values(EMPREGOS).some(e => e.nome.toLowerCase().includes(comando))) {
+      const empregosDisponiveis = Object.values(EMPREGOS)
+        .filter(e => 
+          (e.regiao === user.regiao || user.nivel >= 5) &&
+          (!e.requisito || user.nivel >= e.requisito.nivel)
+        )
+        .map(emp => 
+          `${emp.emoji} *${emp.nome}* - ${PREFIX}trabalhar ${emp.nome.split(' ')[1].toLowerCase()}\n` +
+          `⏱️ ${emp.cooldown}s | 🪙 ${emp.ganho.min}-${emp.ganho.max} golds | ✨ +${emp.xp} XP\n` +
+          `📝 ${emp.desc}${emp.risco ? ` | ☠️ Risco: ${emp.risco*100}%` : ''}` +
+          (emp.requisito ? `\n🔒 Requer nível ${emp.requisito.nivel}+` : '')
+        ).join('\n\n');
       
-      if (user.gold < 200) return sendReply(`❌ Precisa de 200g para viajar!`);
-      
-      user.gold -= 200;
-      user.regiao = regiaoDesejada;
-      return sendReply(
-        `✈️ Chegou em ${REGIOES[regiaoDesejada].nome}\n💰 Saldo: ${user.gold}g`
+      return sendText(
+        `🏘️ *EMPREGOS DISPONÍVEIS* (${REGIOES[user.regiao].nome})\n\n` +
+        `${empregosDisponiveis}\n\n` +
+        `💰 Saldo: ${user.gold} golds | ✨ ${user.xp}/${xpParaProxNivel(user.nivel)} XP\n` +
+        `📊 Nível: ${user.nivel} | 🏷️ ${TITULOS[user.titulo].nome}\n` +
+        `📍 Região: ${REGIOES[user.regiao].nome}\n` +
+        `💼 Histórico: ${user.historico.slice(0, 3).map(h => h.emprego).join(', ') || 'Nenhum'}\n\n` +
+        `📌 Ex: ${PREFIX}trabalhar mineiro`
       );
     }
 
-    if (comando === 'empregos') {
-      const empregos = Object.values(EMPREGOS)
-        .filter(e => e.regiao === user.regiao || user.nivel >= 5)
-        .map(e => `${e.emoji} ${e.nome}: ${PREFIX}trabalhar ${e.nome.split(' ')[1].toLowerCase()}`)
-        .join('\n');
-      return sendReply(`💼 *EMPREGOS*\n\n${empregos}`);
-    }
-
-    return sendReply(`❌ Comando inválido. Use ${PREFIX}rpg menu`);
-  }
-};
-
-// Comando trabalhar
-module.exports.trabalhar = {
-  name: "trabalhar",
-  description: "Trabalha em um emprego",
-  commands: ["trabalhar", "work"],
-  usage: `${PREFIX}trabalhar <emprego>`,
-  
-  handle: async ({ sendReply, userJid, args }) => {
-    const userId = onlyNumbers(userJid);
-    if (!rpgData[userId]) return sendReply(`❌ Use ${PREFIX}rpg menu primeiro`);
-
-    const user = rpgData[userId];
-    aplicarImpostos(userId);
-    const trabalhoArg = args[0]?.toLowerCase();
-    if (!trabalhoArg) return sendReply(`💼 Use: ${PREFIX}trabalhar <emprego>`);
-
+    // Executar trabalho
     const emprego = Object.values(EMPREGOS).find(e => 
-      e.nome.toLowerCase().includes(trabalhoArg)
+      e.nome.toLowerCase().includes(comando)
     );
-    if (!emprego) return sendReply(`❌ Emprego não encontrado!`);
 
-    // Verificações
+    if (!emprego) return sendText(`❌ Emprego não encontrado! Use ${PREFIX}trabalhar para listar.`);
+
+    // Verificar requisitos
+    if (emprego.requisito && user.nivel < emprego.requisito.nivel) {
+      return sendText(
+        `🔒 *Emprego bloqueado!*\n` +
+        `Você precisa ser nível ${emprego.requisito.nivel}+ para trabalhar como ${emprego.nome}.\n` +
+        `Seu nível atual: ${user.nivel}`
+      );
+    }
+
+    // Verificar região
     if (emprego.regiao !== user.regiao && user.nivel < 5) {
-      return sendReply(`❌ Precisa estar em ${REGIOES[emprego.regiao].nome} ou nível 5+`);
+      return sendText(
+        `🌍 *Emprego bloqueado!*\n` +
+        `Você precisa estar na região ${REGIOES[emprego.regiao].nome} ou ter nível 5+.\n` +
+        `Sua região atual: ${REGIOES[user.regiao].nome}`
+      );
     }
 
-    if (emprego.requisito && !verificarRequisito(user, emprego.requisito)) {
-      return sendReply(`🔒 Requisito: ${emprego.requisito}`);
-    }
-
+    // Verificar cooldown
     const agora = Date.now();
     if (user.cooldowns[emprego.nome] > agora) {
       const segundos = Math.ceil((user.cooldowns[emprego.nome] - agora) / 1000);
-      return sendReply(`⏳ Aguarde ${segundos}s para trabalhar novamente`);
+      return sendText(
+        `⏳ *Aguarde ${segundos}s*\n` +
+        `Você pode trabalhar como ${emprego.emoji} ${emprego.nome} novamente em ${segundos} segundos.`
+      );
     }
 
-    // Trabalhar
-    let ganho = Math.floor(Math.random() * (emprego.ganho.max - emprego.ganho.min + 1)) + emprego.ganho.min;
+    // Trabalhar com riscos
     let resultado = 'sucesso';
+    let ganho = Math.floor(Math.random() * (emprego.ganho.max - emprego.ganho.min + 1)) + emprego.ganho.min;
 
+    // Aplicar bônus de região, nível e título
+    const bonusRegiao = Math.floor(ganho * REGIOES[user.regiao].bonus);
+    const bonusNivel = Math.floor(ganho * (user.nivel * 0.02)); // 2% por nível
+    const bonusTitulo = Math.floor(ganho * TITULOS[user.titulo].bonus);
+    ganho += bonusRegiao + bonusNivel + bonusTitulo;
+
+    // Verificar riscos
     if (emprego.risco && Math.random() < emprego.risco) {
       resultado = 'fracasso';
-      ganho = -Math.floor(ganho * 0.5);
+      ganho = Math.floor(ganho * 0.5) * -1; // Perde metade
     }
-
-    // Aplicar bônus de região
-    ganho += Math.floor(ganho * REGIOES[user.regiao].bonus);
 
     // Atualizar dados
     user.gold += ganho;
-    user.xp += (resultado === 'sucesso') ? emprego.xp : Math.floor(emprego.xp * 0.5);
+    user.xp += resultado === 'sucesso' ? emprego.xp : Math.floor(emprego.xp * 0.5);
     user.cooldowns[emprego.nome] = agora + (emprego.cooldown * 1000);
     
-    // Melhorar habilidades
-    if (resultado === 'sucesso') {
-      if (emprego.nome.includes('Ferreiro') || emprego.nome.includes('Gladiador')) user.skills.forca += 0.1;
-      else if (emprego.nome.includes('Ladrão') || emprego.nome.includes('Caçador')) user.skills.agilidade += 0.1;
-      else if (emprego.nome.includes('Mago') || emprego.nome.includes('Alquimista')) user.skills.inteligencia += 0.1;
-    }
-
-    // Verificar nível
+    // Verificar nível e título
     const novoNivel = calcularNivel(user.xp);
-    if (novoNivel > user.nivel) {
-      user.nivel = novoNivel;
-    }
+    const nivelUp = novoNivel > user.nivel;
+    user.nivel = novoNivel;
+    
+    const novoTitulo = atualizarTitulo(userId);
+
+    // Atualizar histórico
+    user.historico.unshift({
+      emprego: emprego.nome,
+      resultado,
+      ganho,
+      quando: new Date().toLocaleTimeString()
+    });
+    user.historico = user.historico.slice(0, 5);
 
     // Mensagem de resultado
-    let mensagem = `💰 *${resultado.toUpperCase()}*\n${emprego.emoji} ${emprego.nome}\n`;
-    mensagem += `🪙 ${ganho >= 0 ? '+' : ''}${ganho}g | ✨ ${emprego.xp} XP\n`;
-    mensagem += `⏱️ Próximo trabalho em ${emprego.cooldown}s`;
+    let mensagem = `💰 *${resultado === 'sucesso' ? 'TRABALHO CONCLUÍDO' : 'TRABALHO FALHOU'}*\n\n` +
+      `${emprego.emoji} *${emprego.nome}*\n` +
+      `🪙 Ganho: ${ganho >= 0 ? '+' : ''}${ganho} golds\n` +
+      `✨ XP: ${resultado === 'sucesso' ? '+' : ''}${emprego.xp} (${user.xp}/${xpParaProxNivel(user.nivel)})\n`;
 
-    if (novoNivel > user.nivel) {
-      mensagem += `\n🎉 Subiu para nível ${novoNivel}!`;
+    if (bonusRegiao > 0 || bonusNivel > 0 || bonusTitulo > 0) {
+      mensagem += `🎁 Bônus: ` +
+        `${bonusRegiao > 0 ? `+${bonusRegiao} (região) ` : ''}` +
+        `${bonusNivel > 0 ? `+${bonusNivel} (nível ${user.nivel}) ` : ''}` +
+        `${bonusTitulo > 0 ? `+${bonusTitulo} (${TITULOS[user.titulo].nome})` : ''}\n`;
     }
 
-    await sendReply(mensagem);
-    atualizarRank();
+    if (nivelUp) {
+      mensagem += `\n🎉 *NOVO NÍVEL ${user.nivel}!* Bônus aumentado para ${user.nivel * 2}%`;
+    }
+    
+    if (novoTitulo) {
+      mensagem += `\n👑 *NOVO TÍTULO: ${novoTitulo.toUpperCase()}!*`;
+    }
+
+    mensagem += `\n⏱️ Próximo trabalho em ${emprego.cooldown}s`;
+
+    await sendText(mensagem);
+    atualizarRank(); // Atualiza o ranking global
   }
 };
