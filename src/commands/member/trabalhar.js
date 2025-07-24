@@ -6,7 +6,7 @@ const { onlyNumbers } = require("../utils");
 const JOBS = {
   FAZENDEIRO: {
     name: "👨‍🌾 Fazendeiro",
-    cooldown: 10,
+    cooldown: 10, // segundos
     min: 15,
     max: 30,
     emoji: "👨‍🌾"
@@ -52,8 +52,8 @@ module.exports = {
     }
 
     try {
-      // Definir caminho do banco de dados corretamente
-      const dbPath = path.join(__dirname, "..", "database", "rpg_data.json");
+      // Definir caminho do banco de dados
+      const dbPath = path.join(__dirname, "..", "..", "database", "rpg_data.json");
       
       // Criar diretório se não existir
       await fs.mkdir(path.dirname(dbPath), { recursive: true });
@@ -69,9 +69,9 @@ module.exports = {
       const userData = rpgData[userId] || { gold: 0, lastWork: 0 };
       const job = Object.values(JOBS).find(j => j.name.split(" ")[1].toLowerCase() === jobArg);
 
-      // Verificar cooldown
+      // Verificar cooldown - CORREÇÃO APLICADA AQUI
       const now = Date.now();
-      const remaining = Math.ceil((job.cooldown * 1000 - (now - userData.lastWork)) / 1000;
+      const remaining = Math.ceil((job.cooldown * 1000 - (now - userData.lastWork)) / 1000);
 
       if (now - userData.lastWork < job.cooldown * 1000) {
         await sendText(
