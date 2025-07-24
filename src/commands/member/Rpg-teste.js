@@ -1,3 +1,23 @@
+/**
+
+Erro ao carregar dados RPG: SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at Object.<anonymous> (/data/data/com.termux/files/home/braga-bot/src/commands/member/rpg.js:16:23)
+    at Module._compile (node:internal/modules/cjs/loader:1692:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Module.require (node:internal/modules/cjs/loader:1449:12)
+    at require (node:internal/modules/helpers:135:16)
+[TAKESHI BOT | ERROR] Erro ao executar comando
+^C
+braga ★ 03:32 ~/braga-bot/src/commands/member ➤ 
+
+
+*/
+
 const { PREFIX } = require('../../config');
 const { onlyNumbers, toUserJid } = require('../../utils');
 const path = require('node:path');
