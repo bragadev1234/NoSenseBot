@@ -1,25 +1,6 @@
-/*
-Erro no comando RPG: TypeError: Cannot read properties of undefined (reading 'toLowerCase')
-    at Object.handle (/data/data/com.termux/files/home/braga-bot/src/commands/member/rpg.js:437:31)
-    at exports.dynamicCommand (/data/data/com.termux/files/home/braga-bot/src/utils/dynamicCommand.js:116:19)
-    at async exports.onMessagesUpsert (/data/data/com.termux/files/home/braga-bot/src/middlewares/onMesssagesUpsert.js:71:9)
-    at async safeEventHandler (/data/data/com.termux/files/home/braga-bot/src/loader.js:19:7)
-Erro no comando RPG: TypeError: Cannot read properties of undefined (reading 'toLowerCase')
-    at Object.handle (/data/data/com.termux/files/home/braga-bot/src/commands/member/rpg.js:437:31)
-    at exports.dynamicCommand (/data/data/com.termux/files/home/braga-bot/src/utils/dynamicCommand.js:116:19)
-    at async exports.onMessagesUpsert (/data/data/com.termux/files/home/braga-bot/src/middlewares/onMesssagesUpsert.js:71:9)
-    at async safeEventHandler (/data/data/com.termux/files/home/braga-bot/src/loader.js:19:7)
-^C
-braga ★ 03:41 ~/braga-bot/src/commands/member ➤ 
-
-
-*/
-
 const { PREFIX } = require('../../config');
-const { onlyNumbers, toUserJid } = require('../../utils');
+const { onlyNumbers } = require('../../utils');
 const { InvalidParameterError } = require('../../errors');
-const path = require('node:path');
-const { ASSETS_DIR } = require('../../config');
 
 // Banco de dados em memória
 const rpgData = {};
@@ -53,7 +34,7 @@ const REGIOES = {
   }
 };
 
-// Lista expandida de empregos (20 profissões)
+// Lista expandida de empregos
 const EMPREGOS = {
   // Básicos
   FAZENDEIRO: {
@@ -118,7 +99,7 @@ const EMPREGOS = {
   },
   
   // Especiais
-  CAÇADOR: {
+  CACADOR: {
     nome: "🏹 Caçador",
     emoji: "🏹",
     cooldown: 20,
@@ -126,7 +107,7 @@ const EMPREGOS = {
     xp: 5,
     desc: "Caça criaturas raras",
     regiao: "FLORESTA",
-    risco: 0.2 // 20% chance de falhar
+    risco: 0.2
   },
   LADRAO: {
     nome: "🦹 Ladrão",
@@ -136,17 +117,17 @@ const EMPREGOS = {
     xp: 7,
     desc: "Rouba dos ricos... ou pobres",
     regiao: "METROPOLE",
-    risco: 0.4 // 40% chance de ser preso
+    risco: 0.4
   }
 };
 
-// Sistema de níveis avançado
+// Sistema de níveis
 const calcularNivel = (xp) => Math.floor(Math.pow(xp / 100, 0.6)) + 1;
 const xpParaProxNivel = (nivel) => Math.pow(nivel / 0.6, 1 / 0.6) * 100;
 
 // Sistema de rank
 const atualizarRank = () => {
-  rankGlobal.length = 0; // Limpa o rank
+  rankGlobal.length = 0;
   
   for (const [userId, data] of Object.entries(rpgData)) {
     rankGlobal.push({
@@ -158,26 +139,6 @@ const atualizarRank = () => {
   }
   
   rankGlobal.sort((a, b) => b.gold - a.gold || b.nivel - a.nivel);
-};
-
-// Sistema de impostos e eventos
-const aplicarImpostos = (userId) => {
-  const agora = new Date();
-  const user = rpgData[userId];
-  
-  if (!user) return;
-  
-  const regiao = REGIOES[user.regiao || 'VILAREJO'];
-  const imposto = Math.floor(user.gold * regiao.taxaImposto);
-  
-  if (imposto > 0) {
-    user.gold -= imposto;
-    user.historicoImpostos = user.historicoImpostos || [];
-    user.historicoImpostos.push({
-      valor: imposto,
-      quando: agora.toLocaleTimeString()
-    });
-  }
 };
 
 // Inicializa jogador
@@ -451,6 +412,11 @@ module.exports = {
   
   handle: async ({ sendReply, sendErrorReply, userJid, args, command }) => {
     try {
+      // Verifica se o comando foi passado corretamente
+      if (!command) {
+        return await menuRPG({ sendReply, userJid });
+      }
+
       const comando = command.toLowerCase();
       
       switch(comando) {
