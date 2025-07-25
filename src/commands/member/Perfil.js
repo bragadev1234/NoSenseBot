@@ -1,19 +1,3 @@
-/*
-
-}
-[TAKESHI BOT | ERROR] Erro ao obter status: getStatus is not a function
-[TAKESHI BOT | ERROR] Erro no comando perfil: TypeError: Cannot read properties of undefined (reading 'info')
-    at Object.handle (/data/data/com.termux/files/home/braga-bot/src/commands/member/perfil.js:183:21)
-    at async exports.dynamicCommand (/data/data/com.termux/files/home/braga-bot/src/utils/dynamicCommand.js:116:5)
-    at async exports.onMessagesUpsert (/data/data/com.termux/files/home/braga-bot/src/middlewares/onMesssagesUpsert.js:71:9)
-    at async safeEventHandler (/data/data/com.termux/files/home/braga-bot/src/loader.js:19:7)
-[TAKESHI BOT | ERROR] Erro ao executar comando
-
-
-
-
-*/
-
 const { isGroup } = require(`${BASE_DIR}/utils`);
 const { errorLog, commandLogger } = require(`${BASE_DIR}/utils/logger`);
 const fs = require('fs').promises;
@@ -21,7 +5,7 @@ const path = require('path');
 
 const { PREFIX, ASSETS_DIR, CACHE_DIR } = require(`${BASE_DIR}/config`);
 const { InvalidParameterError, UserNotInGroupError } = require(`${BASE_DIR}/errors`);
-const { getProfileImageData, getStatus } = require(`${BASE_DIR}/services/baileys`);
+const { getProfileImageData } = require(`${BASE_DIR}/services/baileys`);
 
 // Cache de perfis (em memória)
 const profileCache = new Map();
@@ -106,7 +90,8 @@ module.exports = {
       
       // Verifica se o usuário está no grupo
       if (!participant && targetJid !== userJid) {
-        throw new UserNotInGroupError("O usuário mencionado não está neste grupo.");
+        await sendErrorReply("O usuário mencionado não está neste grupo.");
+        return;
       }
 
       // Obtém dados do perfil
@@ -121,22 +106,14 @@ module.exports = {
 
       try {
         // Tenta obter dados do usuário
-        const [{ name, status }, { profileImage }] = await Promise.all([
-          socket.onWhatsApp(targetJid).then(res => res[0] || {}),
-          getProfileImageData(socket, targetJid)
-        ]);
+        const contactInfo = await socket.onWhatsApp(targetJid);
+        const userInfo = contactInfo[0] || {};
+        const { profileImage } = await getProfileImageData(socket, targetJid);
 
-        profileData.name = name || profileData.name;
-        profileData.status = status || profileData.status;
+        profileData.name = userInfo.name || profileData.name;
+        profileData.status = userInfo.status || profileData.status;
         profileData.picUrl = profileImage || profileData.picUrl;
         
-        // Tenta obter status personalizado
-        try {
-          const userStatus = await getStatus(socket, targetJid);
-          profileData.status = userStatus.status || profileData.status;
-        } catch (statusError) {
-          errorLog(`Erro ao obter status: ${statusError.message}`);
-        }
       } catch (error) {
         errorLog(`Erro ao obter dados do perfil: ${error.message}`);
       }
@@ -169,9 +146,6 @@ module.exports = {
    ├─ 🎯 Atividade: ${stats.activity}%
    ├─ 💖 Popularidade: ${stats.popularity}%
    └─ 😂 Humor: ${stats.humor}%
-
-🔍 *Dados técnicos:*
-   └─ 📅 Última atualização: ${new Date().toLocaleTimeString()}
       `.trim();
 
       // Prepara a mensagem com imagem
@@ -180,9 +154,6 @@ module.exports = {
         caption: formattedMessage,
         mentions: [targetJid],
         footer: `Comando executado por @${userJid.split('@')[0]}`,
-        contextInfo: {
-          mentionedJid: [userJid]
-        }
       };
 
       // Atualiza cache
@@ -200,7 +171,7 @@ module.exports = {
     } catch (error) {
       errorLog(`Erro no comando perfil: ${error.stack}`);
       
-      if (error instanceof InvalidParameterError || error instanceof UserNotInGroupError) {
+      if (error.message.includes("InvalidParameterError") || error.message.includes("UserNotInGroupError")) {
         await sendWarningReact();
         await sendErrorReply(error.message);
       } else {
