@@ -1,3 +1,19 @@
+/*
+
+}
+[TAKESHI BOT | ERROR] Erro ao obter status: getStatus is not a function
+[TAKESHI BOT | ERROR] Erro no comando perfil: TypeError: Cannot read properties of undefined (reading 'info')
+    at Object.handle (/data/data/com.termux/files/home/braga-bot/src/commands/member/perfil.js:183:21)
+    at async exports.dynamicCommand (/data/data/com.termux/files/home/braga-bot/src/utils/dynamicCommand.js:116:5)
+    at async exports.onMessagesUpsert (/data/data/com.termux/files/home/braga-bot/src/middlewares/onMesssagesUpsert.js:71:9)
+    at async safeEventHandler (/data/data/com.termux/files/home/braga-bot/src/loader.js:19:7)
+[TAKESHI BOT | ERROR] Erro ao executar comando
+
+
+
+
+*/
+
 const { isGroup } = require(`${BASE_DIR}/utils`);
 const { errorLog, commandLogger } = require(`${BASE_DIR}/utils/logger`);
 const fs = require('fs').promises;
