@@ -1,49 +1,15 @@
 const { isGroup } = require(`${BASE_DIR}/utils`);
-const { errorLog, commandLogger } = require(`${BASE_DIR}/utils/logger`);
-const fs = require('fs').promises;
-const path = require('path');
+const { errorLog } = require(`${BASE_DIR}/utils/logger`);
 
-const { PREFIX, ASSETS_DIR, CACHE_DIR } = require(`${BASE_DIR}/config`);
-const { InvalidParameterError, UserNotInGroupError } = require(`${BASE_DIR}/errors`);
+const { PREFIX, ASSETS_DIR } = require(`${BASE_DIR}/config`);
+const { InvalidParameterError } = require(`${BASE_DIR}/errors`);
 const { getProfileImageData } = require(`${BASE_DIR}/services/baileys`);
-
-// Cache de perfis (em memória)
-const profileCache = new Map();
-const CACHE_EXPIRATION = 1000 * 60 * 30; // 30 minutos
-
-// Helper para formatar datas
-const formatDate = (date) => {
-  if (!date) return 'Desconhecido';
-  return new Date(date).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-};
-
-// Helper para calcular tempo no grupo
-const calculateGroupTime = (participant) => {
-  if (!participant?.date) return 'Desconhecido';
-  const joinDate = new Date(participant.date * 1000);
-  const diff = Date.now() - joinDate.getTime();
-  
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const months = Math.floor(days / 30);
-  const years = Math.floor(months / 12);
-  
-  if (years > 0) return `${years} ano${years > 1 ? 's' : ''}`;
-  if (months > 0) return `${months} mês${months > 1 ? 'es' : ''}`;
-  return `${days} dia${days > 1 ? 's' : ''}`;
-};
 
 module.exports = {
   name: "perfil",
-  description: "Mostra informações detalhadas de um usuário",
-  commands: ["perfil", "profile", "info"],
-  usage: `${PREFIX}perfil [@usuário]`,
-  aliases: ["pf"],
-  cooldown: 5000, // 5 segundos de cooldown
-  
+  description: "Mostra informações de um usuário",
+  commands: ["perfil", "profile"],
+  usage: `${PREFIX}perfil ou perfil @usuario`,
   /**
    * @param {CommandHandleProps} props
    * @returns {Promise<void>}
@@ -56,127 +22,92 @@ module.exports = {
     sendErrorReply,
     sendWaitReply,
     sendSuccessReact,
-    sendWarningReact,
-    isAdmin
   }) => {
+    // Check if the command is being used in a group
+    if (!isGroup(remoteJid)) {
+      throw new InvalidParameterError(
+        "Este comando só pode ser usado em grupo."
+      );
+    }
+
+    // Determine the target user (either mentioned user or command sender)
+    const targetJid = args[0]
+      ? args[0].replace(/[@ ]/g, "") + "@s.whatsapp.net"
+      : userJid;
+
+    // Notify user that the profile is being loaded
+    await sendWaitReply("Carregando perfil...");
+
     try {
-      // Verifica se é um grupo
-      if (!isGroup(remoteJid)) {
-        throw new InvalidParameterError(
-          "Este comando só pode ser usado em grupos."
-        );
-      }
-
-      // Determina o usuário alvo
-      const targetJid = args[0] 
-        ? args[0].replace(/[@ ]/g, "") + "@s.whatsapp.net"
-        : userJid;
-
-      // Verifica cooldown
-      const cacheKey = `${remoteJid}_${targetJid}`;
-      const cachedProfile = profileCache.get(cacheKey);
-      
-      if (cachedProfile && (Date.now() - cachedProfile.timestamp < CACHE_EXPIRATION)) {
-        await socket.sendMessage(remoteJid, cachedProfile.message);
-        await sendSuccessReact();
-        return;
-      }
-
-      await sendWaitReply("📡 Buscando informações do perfil...");
-
-      // Obtém metadados do grupo
-      const groupMetadata = await socket.groupMetadata(remoteJid);
-      const participant = groupMetadata.participants.find(p => p.id === targetJid);
-      
-      // Verifica se o usuário está no grupo
-      if (!participant && targetJid !== userJid) {
-        await sendErrorReply("O usuário mencionado não está neste grupo.");
-        return;
-      }
-
-      // Obtém dados do perfil
-      let profileData = {
-        picUrl: `${ASSETS_DIR}/images/default-user.png`,
-        name: 'Usuário Desconhecido',
-        status: '',
-        role: participant?.admin ? 'Administrador' : 'Membro',
-        joinDate: participant?.date ? participant.date * 1000 : null,
-        isBot: targetJid.includes('@s.whatsapp.net') ? false : true
-      };
+      // Initialize profile variables
+      let profilePicUrl;
+      let userName;
+      let userRole = "Membro";
 
       try {
-        // Tenta obter dados do usuário
-        const contactInfo = await socket.onWhatsApp(targetJid);
-        const userInfo = contactInfo[0] || {};
+        // Attempt to get profile picture and user info
         const { profileImage } = await getProfileImageData(socket, targetJid);
+        profilePicUrl = profileImage || `${ASSETS_DIR}/images/default-user.png`;
 
-        profileData.name = userInfo.name || profileData.name;
-        profileData.status = userInfo.status || profileData.status;
-        profileData.picUrl = profileImage || profileData.picUrl;
-        
+        // Get contact information
+        const contactInfo = await socket.onWhatsApp(targetJid);
+        userName = contactInfo[0]?.name || "Usuário Desconhecido";
       } catch (error) {
-        errorLog(`Erro ao obter dados do perfil: ${error.message}`);
+        // Log error and use default profile picture if there's an issue
+        errorLog(
+          `Erro ao tentar pegar dados do usuário ${targetJid}: ${JSON.stringify(
+            error,
+            null,
+            2
+          )}`
+        );
+        profilePicUrl = `${ASSETS_DIR}/images/default-user.png`;
       }
 
-      // Gera estatísticas (algumas aleatórias para diversão)
-      const stats = {
-        activity: Math.floor(Math.random() * 100),
-        popularity: Math.floor(Math.random() * 100),
-        humor: Math.floor(Math.random() * 100),
-        // Calcula "nível" baseado no tempo no grupo
-        level: participant?.date ? Math.min(
-          Math.floor((Date.now() - (participant.date * 1000)) / (1000 * 60 * 60 * 24 * 30)), 
-          100
-        ) : 0
-      };
+      // Get group metadata to check user role
+      const groupMetadata = await socket.groupMetadata(remoteJid);
 
-      // Formata a mensagem
-      const formattedMessage = `
-🌟 *INFORMAÇÕES DO PERFIL* 🌟
+      // Find the participant in the group
+      const participant = groupMetadata.participants.find(
+        (participant) => participant.id === targetJid
+      );
 
-👤 *Nome:* ${profileData.name} ${profileData.isBot ? '(🤖 Bot)' : ''}
-📧 *ID:* ${targetJid.split('@')[0]}
-📝 *Status:* ${profileData.status || 'Nenhum status definido'}
+      // Set user role based on admin status
+      if (participant?.admin) {
+        userRole = "Administrador";
+      }
 
-👑 *Cargo:* ${profileData.role}
-📅 *No grupo há:* ${calculateGroupTime(participant)}
-📊 *Nível:* ${stats.level}
+      // Generate random stats for fun
+      const randomPercent = Math.floor(Math.random() * 100);
+      const programPrice = (Math.random() * 5000 + 1000).toFixed(2);
+      const beautyLevel = Math.floor(Math.random() * 100) + 1;
 
-📈 *Estatísticas:*
-   ├─ 🎯 Atividade: ${stats.activity}%
-   ├─ 💖 Popularidade: ${stats.popularity}%
-   └─ 😂 Humor: ${stats.humor}%
-      `.trim();
+      // Construct the profile message
+      const mensagem = `
+👤 *Nome:* @${targetJid.split("@")[0]}
+🎖️ *Cargo:* ${userRole}
 
-      // Prepara a mensagem com imagem
-      const messageData = {
-        image: { url: profileData.picUrl },
-        caption: formattedMessage,
-        mentions: [targetJid],
-        footer: `Comando executado por @${userJid.split('@')[0]}`,
-      };
+🌚 *Programa:* R$ ${programPrice}
+🐮 *Gado:* ${randomPercent + 7 || 5}%
+🎱 *Passiva:* ${randomPercent + 5 || 10}%
+✨ *Beleza:* ${beautyLevel}%`;
 
-      // Atualiza cache
-      profileCache.set(cacheKey, {
-        timestamp: Date.now(),
-        message: messageData
-      });
+      // Prepare mentions for the message
+      const mentions = [targetJid];
 
-      // Envia a mensagem
-      await socket.sendMessage(remoteJid, messageData);
+      // Send success reaction
       await sendSuccessReact();
-      
-      // Log do comando
-      commandLogger.info(`Perfil visualizado: ${targetJid} em ${remoteJid}`);
+
+      // Send the profile message with image
+      await socket.sendMessage(remoteJid, {
+        image: { url: profilePicUrl },
+        caption: mensagem,
+        mentions: mentions,
+      });
     } catch (error) {
-      errorLog(`Erro no comando perfil: ${error.stack}`);
-      
-      if (error.message.includes("InvalidParameterError") || error.message.includes("UserNotInGroupError")) {
-        await sendWarningReact();
-        await sendErrorReply(error.message);
-      } else {
-        await sendErrorReply("❌ Ocorreu um erro ao processar o perfil. Tente novamente mais tarde.");
-      }
+      // Handle any errors that occur during the process
+      console.error(error);
+      sendErrorReply("Ocorreu um erro ao tentar verificar o perfil.");
     }
   },
 };
