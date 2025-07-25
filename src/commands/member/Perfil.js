@@ -23,37 +23,30 @@ module.exports = {
     sendWaitReply,
     sendSuccessReact,
   }) => {
-    // Check if the command is being used in a group
     if (!isGroup(remoteJid)) {
       throw new InvalidParameterError(
         "Este comando só pode ser usado em grupo."
       );
     }
 
-    // Determine the target user (either mentioned user or command sender)
     const targetJid = args[0]
       ? args[0].replace(/[@ ]/g, "") + "@s.whatsapp.net"
       : userJid;
 
-    // Notify user that the profile is being loaded
     await sendWaitReply("Carregando perfil...");
 
     try {
-      // Initialize profile variables
       let profilePicUrl;
       let userName;
       let userRole = "Membro";
 
       try {
-        // Attempt to get profile picture and user info
         const { profileImage } = await getProfileImageData(socket, targetJid);
         profilePicUrl = profileImage || `${ASSETS_DIR}/images/default-user.png`;
 
-        // Get contact information
         const contactInfo = await socket.onWhatsApp(targetJid);
         userName = contactInfo[0]?.name || "Usuário Desconhecido";
       } catch (error) {
-        // Log error and use default profile picture if there's an issue
         errorLog(
           `Erro ao tentar pegar dados do usuário ${targetJid}: ${JSON.stringify(
             error,
@@ -64,48 +57,55 @@ module.exports = {
         profilePicUrl = `${ASSETS_DIR}/images/default-user.png`;
       }
 
-      // Get group metadata to check user role
       const groupMetadata = await socket.groupMetadata(remoteJid);
 
-      // Find the participant in the group
       const participant = groupMetadata.participants.find(
         (participant) => participant.id === targetJid
       );
 
-      // Set user role based on admin status
       if (participant?.admin) {
         userRole = "Administrador";
       }
 
-      // Generate random stats for fun
+      // Gerando todas as estatísticas aleatórias
       const randomPercent = Math.floor(Math.random() * 100);
       const programPrice = (Math.random() * 5000 + 1000).toFixed(2);
       const beautyLevel = Math.floor(Math.random() * 100) + 1;
+      const iqLevel = Math.floor(Math.random() * 140) + 60;
+      const luckLevel = Math.floor(Math.random() * 100) + 1;
+      const humorLevel = ["Ruim", "Médio", "Bom", "Ótimo"][Math.floor(Math.random() * 4)];
+      const zodiacSign = ["Áries", "Touro", "Gêmeos", "Câncer", "Leão", "Virgem", "Libra", "Escorpião", "Sagitário", "Capricórnio", "Aquário", "Peixes"][Math.floor(Math.random() * 12)];
+      const relationshipStatus = ["Solteiro(a)", "Namorando", "Noivo(a)", "Casado(a)", "Enrolado(a)", "Em crise"][Math.floor(Math.random() * 6)];
+      const memeKnowledge = Math.floor(Math.random() * 100) + 1;
+      const batteryLevel = Math.floor(Math.random() * 100) + 1;
 
-      // Construct the profile message
       const mensagem = `
 👤 *Nome:* @${targetJid.split("@")[0]}
 🎖️ *Cargo:* ${userRole}
+♈ *Signo:* ${zodiacSign}
+💘 *Status:* ${relationshipStatus}
 
+📊 *Estatísticas:*
 🌚 *Programa:* R$ ${programPrice}
 🐮 *Gado:* ${randomPercent + 7 || 5}%
 🎱 *Passiva:* ${randomPercent + 5 || 10}%
-✨ *Beleza:* ${beautyLevel}%`;
+✨ *Beleza:* ${beautyLevel}%
+🧠 *QI:* ${iqLevel}
+🍀 *Sorte:* ${luckLevel}%
+😂 *Humor:* ${humorLevel}
+📱 *Bateria:* ${batteryLevel}%
+🤣 *Memes:* ${memeKnowledge}%`;
 
-      // Prepare mentions for the message
       const mentions = [targetJid];
 
-      // Send success reaction
       await sendSuccessReact();
 
-      // Send the profile message with image
       await socket.sendMessage(remoteJid, {
         image: { url: profilePicUrl },
         caption: mensagem,
         mentions: mentions,
       });
     } catch (error) {
-      // Handle any errors that occur during the process
       console.error(error);
       sendErrorReply("Ocorreu um erro ao tentar verificar o perfil.");
     }
