@@ -83,7 +83,6 @@ module.exports = {
 👤 *Nome:* @${targetJid.split("@")[0]}
 🎖️ *Cargo:* ${userRole}
 ♈ *Signo:* ${zodiacSign}
-💘 *Status:* ${relationshipStatus}
 
 📊 *Estatísticas:*
 🌚 *Programa:* R$ ${programPrice}
@@ -93,8 +92,7 @@ module.exports = {
 🧠 *QI:* ${iqLevel}
 🍀 *Sorte:* ${luckLevel}%
 😂 *Humor:* ${humorLevel}
-📱 *Bateria:* ${batteryLevel}%
-🤣 *Memes:* ${memeKnowledge}%`;
+🤣 *Carisma:* ${memeKnowledge}%`;
 
       const mentions = [targetJid];
 
