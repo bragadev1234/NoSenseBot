@@ -5,32 +5,53 @@ const { onlyNumbers } = require('../../utils');
 const rpgData = {};
 const rankGlobal = [];
 
+// Fontes de texto estilizadas
+const FONTES = {
+  titulo: (text) => `✨ ${text} ✨`,
+  subtitulo: (text) => `▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n${text}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`,
+  destaque: (text) => `★ ${text} ★`,
+  erro: (text) => `✖ ${text} ✖`,
+  sucesso: (text) => `✔ ${text} ✔`,
+  dinheiro: (text) => `💰 ${text}`,
+  xp: (text) => `✨ ${text}`,
+  nivel: (text) => `📈 ${text}`,
+  tempo: (text) => `⏱️ ${text}`,
+  local: (text) => `📍 ${text}`,
+  ranking: (text) => `🏆 ${text}`,
+  perigo: (text) => `☠️ ${text}`,
+  bonus: (text) => `🎁 ${text}`
+};
+
 // Sistema de cidades/regiões com diferentes economias
 const REGIOES = {
   VILAREJO: {
-    nome: "🏡 Vilarejo",
+    nome: "🏡 Vilarejo dos Iniciantes",
     taxaImposto: 0.05,
     bonus: 0,
-    custoViagem: 50
+    custoViagem: 50,
+    seguranca: 0.9 // Alta segurança contra crimes
   },
   METROPOLE: {
-    nome: "🏙️ Metrópole",
+    nome: "🏙️ Metrópole Mercante",
     taxaImposto: 0.15,
     bonus: 0.2,
-    custoViagem: 150
+    custoViagem: 150,
+    seguranca: 0.7 // Média segurança
   },
   REINO: {
-    nome: "🏰 Reino",
+    nome: "🏰 Reino dos Aventureiros",
     taxaImposto: 0.25,
     bonus: 0.4,
-    custoViagem: 300
+    custoViagem: 300,
+    seguranca: 0.5 // Baixa segurança
   },
   CIDADELA_REAL: {
     nome: "👑 Cidadela Real",
     taxaImposto: 0.35,
     bonus: 0.6,
     custoViagem: 1000,
-    exclusivo: true
+    exclusivo: true,
+    seguranca: 1.0 // Crimes impossíveis
   }
 };
 
@@ -294,19 +315,182 @@ const aplicarImpostos = () => {
   }
 };
 
-module.exports = {
-  name: "trabalhar",
-  description: "Sistema RPG de trabalhos com economia dinâmica",
-  commands: ["trabalhar", "work", "job", "emprego"],
-  usage: `${PREFIX}trabalhar <emprego>`,
+// Sistema de PvP
+const duelar = (desafiante, desafiado) => {
+  const jogador1 = rpgData[desafiante];
+  const jogador2 = rpgData[desafiado];
   
-  handle: async ({ sendText, userJid, args }) => {
+  if (!jogador1 || !jogador2) {
+    return { vencedor: null, mensagem: FONTES.erro("Um dos jogadores não está registrado no RPG!") };
+  }
+  
+  if (jogador1.gold < 50 || jogador2.gold < 50) {
+    return { vencedor: null, mensagem: FONTES.erro("Ambos precisam ter pelo menos 50 golds para duelar!") };
+  }
+  
+  // Fatores que influenciam o duelo
+  const nivel1 = jogador1.nivel;
+  const nivel2 = jogador2.nivel;
+  const forca1 = jogador1.skills?.forca || 1;
+  const forca2 = jogador2.skills?.forca || 1;
+  const agilidade1 = jogador1.skills?.agilidade || 1;
+  const agilidade2 = jogador2.skills?.agilidade || 1;
+  
+  // Cálculo de chance de vitória (60% nível, 30% força, 10% agilidade)
+  const chance1 = (nivel1 * 0.6) + (forca1 * 0.3) + (agilidade1 * 0.1);
+  const chance2 = (nivel2 * 0.6) + (forca2 * 0.3) + (agilidade2 * 0.1);
+  const total = chance1 + chance2;
+  
+  const random = Math.random() * total;
+  const vencedor = random < chance1 ? desafiante : desafiado;
+  const perdedor = vencedor === desafiante ? desafiado : desafiante;
+  
+  // Aposta baseada no nível (5% do gold do perdedor)
+  const aposta = Math.floor(rpgData[perdedor].gold * 0.05);
+  
+  // Transferência de golds
+  rpgData[vencedor].gold += aposta;
+  rpgData[perdedor].gold -= aposta;
+  
+  // XP para ambos
+  rpgData[vencedor].xp += 10;
+  rpgData[perdedor].xp += 5;
+  
+  // Atualizar histórico
+  rpgData[vencedor].historicoPvP = rpgData[vencedor].historicoPvP || [];
+  rpgData[vencedor].historicoPvP.push({
+    oponente: perdedor,
+    resultado: 'vitória',
+    gold: apesta,
+    quando: new Date().toLocaleTimeString()
+  });
+  
+  rpgData[perdedor].historicoPvP = rpgData[perdedor].historicoPvP || [];
+  rpgData[perdedor].historicoPvP.push({
+    oponente: vencedor,
+    resultado: 'derrota',
+    gold: -aposta,
+    quando: new Date().toLocaleTimeString()
+  });
+  
+  return {
+    vencedor,
+    mensagem: FONTES.sucesso(`\n⚔️ *DUELO FINALIZADO!* ⚔️\n\n` +
+      `🏆 Vencedor: @${vencedor}\n` +
+      `💀 Perdedor: @${perdedor}\n` +
+      `💰 Aposta: ${aposta} golds transferidos\n` +
+      `✨ ${rpgData[vencedor].nome || 'Desafiante'} ganhou +10 XP\n` +
+      `✨ ${rpgData[perdedor].nome || 'Desafiado'} ganhou +5 XP`)
+  };
+};
+
+// Sistema de assalto
+const assaltar = (assaltante, vitima) => {
+  const jogador1 = rpgData[assaltante];
+  const jogador2 = rpgData[vitima];
+  
+  if (!jogador1 || !jogador2) {
+    return { sucesso: false, mensagem: FONTES.erro("Um dos jogadores não está registrado no RPG!") };
+  }
+  
+  // Verificar segurança da região
+  const regiao = REGIOES[jogador1.regiao || 'VILAREJO'];
+  if (Math.random() < regiao.seguranca) {
+    // Falha por segurança
+    const multa = Math.floor(jogador1.gold * 0.1);
+    jogador1.gold -= multa;
+    
+    return {
+      sucesso: false,
+      mensagem: FONTES.erro(`\n🚨 *ASSALTO FALHOU!* 🚨\n\n` +
+        `Você foi pego pela guarda ${regiao.nome}!\n` +
+        `💰 Multa: -${multa} golds\n` +
+        `⚠️ Reputação diminuída!`)
+    };
+  }
+  
+  // Chance baseada em nível e agilidade
+  const chanceSucesso = 0.4 + (jogador1.nivel * 0.01) + ((jogador1.skills?.agilidade || 1) * 0.05);
+  const sucesso = Math.random() < chanceSucesso;
+  
+  if (sucesso) {
+    // Assalto bem sucedido - rouba 40% do gold da vítima
+    const roubado = Math.floor(jogador2.gold * 0.4);
+    jogador1.gold += roubado;
+    jogador2.gold -= roubado;
+    
+    // XP
+    jogador1.xp += 15;
+    
+    // Histórico
+    jogador1.historicoCrimes = jogador1.historicoCrimes || [];
+    jogador1.historicoCrimes.push({
+      vitima,
+      tipo: 'assalto',
+      resultado: 'sucesso',
+      gold: roubado,
+      quando: new Date().toLocaleTimeString()
+    });
+    
+    jogador2.historicoCrimes = jogador2.historicoCrimes || [];
+    jogador2.historicoCrimes.push({
+      vitima: assaltante,
+      tipo: 'assalto',
+      resultado: 'vitima',
+      gold: -roubado,
+      quando: new Date().toLocaleTimeString()
+    });
+    
+    return {
+      sucesso: true,
+      mensagem: FONTES.sucesso(`\n💰 *ASSALTO BEM SUCEDIDO!* 💰\n\n` +
+        `Você roubou ${roubado} golds de @${vitima}\n` +
+        `✨ +15 XP por crime bem sucedido\n` +
+        `🏃‍♂️ Fuja antes que a guarda te pegue!`)
+    };
+  } else {
+    // Assalto falhou - perde 25% do gold
+    const perdido = Math.floor(jogador1.gold * 0.25);
+    jogador1.gold -= perdido;
+    
+    // XP mínimo
+    jogador1.xp += 5;
+    
+    // Histórico
+    jogador1.historicoCrimes = jogador1.historicoCrimes || [];
+    jogador1.historicoCrimes.push({
+      vitima,
+      tipo: 'assalto',
+      resultado: 'fracasso',
+      gold: -perdido,
+      quando: new Date().toLocaleTimeString()
+    });
+    
+    return {
+      sucesso: false,
+      mensagem: FONTES.erro(`\n🚨 *ASSALTO FALHOU!* 🚨\n\n` +
+        `Você foi pego por @${vitima}!\n` +
+        `💰 Perda: -${perdido} golds\n` +
+        `✨ +5 XP pela tentativa\n` +
+        `⚠️ Tente novamente mais tarde!`)
+    };
+  }
+};
+
+module.exports = {
+  name: "rpg",
+  description: "Sistema RPG completo com economia, PvP e crimes",
+  commands: ["rpg", "trabalhar", "work", "job", "emprego", "pvp", "assaltar"],
+  usage: `${PREFIX}rpg <comando> [opções]`,
+  
+  handle: async ({ sendText, userJid, args, mentions }) => {
     const userId = onlyNumbers(userJid);
     const comando = args[0]?.toLowerCase();
 
     // Inicialização do jogador
     if (!rpgData[userId]) {
       rpgData[userId] = {
+        nome: `Jogador ${userId.slice(-4)}`,
         gold: 100,
         xp: 0,
         nivel: 1,
@@ -317,8 +501,11 @@ module.exports = {
           forca: 1,
           agilidade: 1,
           inteligencia: 1
-        }
+        },
+        inventario: [],
+        reputacao: 0
       };
+      atualizarRank();
     }
 
     const user = rpgData[userId];
@@ -334,48 +521,49 @@ module.exports = {
         const regioesDisponiveis = Object.entries(REGIOES)
           .filter(([key, reg]) => !reg.exclusivo || user.nivel >= 10)
           .map(([key, reg]) => 
-            `${reg.nome} - ${PREFIX}trabalhar viajar ${key}\n` +
+            `${reg.nome} - ${PREFIX}rpg viajar ${key}\n` +
             `💰 Custo: ${reg.custoViagem} golds | 🏆 ${reg.exclusivo ? "Nível 10+ ou Top Rank" : ""}`
-          ).join('\n');
+          ).join('\n\n');
         
         return sendText(
-          `✈️ *SISTEMA DE VIAGEM* ✈️\n\n` +
-          `Regiões disponíveis:\n${regioesDisponiveis}\n\n` +
-          `📍 Sua região atual: ${REGIOES[user.regiao].nome}\n` +
-          `💰 Seu saldo: ${user.gold} golds\n\n` +
-          `Ex: ${PREFIX}trabalhar viajar METROPOLE`
+          FONTES.titulo("✈️ SISTEMA DE VIAGEM ✈️") + "\n\n" +
+          FONTES.subtitulo("Regiões disponíveis:") + "\n" +
+          regioesDisponiveis + "\n\n" +
+          FONTES.local(`Sua região atual: ${REGIOES[user.regiao].nome}`) + "\n" +
+          FONTES.dinheiro(`Seu saldo: ${user.gold} golds`) + "\n\n" +
+          `Ex: ${PREFIX}rpg viajar METROPOLE`
         );
       }
       
       if (regiaoDestino.exclusivo && user.nivel < 10 && !rankGlobal.some(u => u.userId === userId && rankGlobal.indexOf(u) < 5)) {
         return sendText(
-          `🚫 *ACESSO NEGADO!*\n` +
+          FONTES.erro("🚫 ACESSO NEGADO!") + "\n\n" +
           `A ${regiaoDestino.nome} é exclusiva para:\n` +
           `- Nível 10 ou superior\n` +
           `- Membros do Top 5 do ranking\n\n` +
-          `Seu nível: ${user.nivel}`
+          FONTES.nivel(`Seu nível: ${user.nivel}`)
         );
       }
       
       if (user.regiao === destino) {
-        return sendText(`ℹ️ Você já está na região ${regiaoDestino.nome}!`);
+        return sendText(FONTES.erro(`ℹ️ Você já está na região ${regiaoDestino.nome}!`));
       }
       
       if (user.gold < regiaoDestino.custoViagem) {
         return sendText(
-          `💰 *FUNDOS INSUFICIENTES!*\n` +
+          FONTES.erro("💰 FUNDOS INSUFICIENTES!") + "\n\n" +
           `Você precisa de ${regiaoDestino.custoViagem} golds para viajar para ${regiaoDestino.nome}\n` +
-          `Seu saldo: ${user.gold} golds`
+          FONTES.dinheiro(`Seu saldo: ${user.gold} golds`)
         );
       }
       
       user.gold -= regiaoDestino.custoViagem;
       user.regiao = destino;
       return sendText(
-        `✈️ *VIAGEM REALIZADA!*\n` +
+        FONTES.sucesso("✈️ VIAGEM REALIZADA!") + "\n\n" +
         `Você chegou em ${regiaoDestino.nome}\n` +
-        `💰 Custo da viagem: ${regiaoDestino.custoViagem} golds\n` +
-        `🏆 Novos empregos disponíveis! Use ${PREFIX}trabalhar para ver.`
+        FONTES.dinheiro(`Custo da viagem: ${regiaoDestino.custoViagem} golds`) + "\n" +
+        `🏆 Novos empregos disponíveis! Use ${PREFIX}rpg para ver.`
       );
     }
 
@@ -391,13 +579,60 @@ module.exports = {
       ).join('\n');
       
       return sendText(
-        `🏆 *RANKING GLOBAL* 🏆\n\n` +
-        `${top5}\n\n` +
-        `📍 Seu título: ${titulo}\n` +
-        `📊 Sua posição: ${posicao || 'Não ranqueado'}\n` +
-        `💰 Seu saldo: ${user.gold} golds\n` +
-        `✨ Nível: ${user.nivel} (${user.xp}/${xpParaProxNivel(user.nivel)} XP)`
+        FONTES.titulo("🏆 RANKING GLOBAL 🏆") + "\n\n" +
+        top5 + "\n\n" +
+        FONTES.destaque(`📍 Seu título: ${titulo}`) + "\n" +
+        FONTES.ranking(`📊 Sua posição: ${posicao || 'Não ranqueado'}`) + "\n" +
+        FONTES.dinheiro(`💰 Seu saldo: ${user.gold} golds`) + "\n" +
+        FONTES.xp(`✨ Nível: ${user.nivel} (${user.xp}/${xpParaProxNivel(user.nivel)} XP)`)
       );
+    }
+
+    // Comando 'pvp'
+    if (comando === 'pvp') {
+      if (!mentions || mentions.length === 0) {
+        return sendText(
+          FONTES.erro("❌ MENÇÃO OBRIGATÓRIA!") + "\n\n" +
+          `Use: ${PREFIX}rpg pvp @jogador\n` +
+          `Ex: ${PREFIX}rpg pvp @5511999999999`
+        );
+      }
+      
+      const alvo = onlyNumbers(mentions[0]);
+      if (alvo === userId) {
+        return sendText(FONTES.erro("Você não pode duelar consigo mesmo!"));
+      }
+      
+      const resultado = duelar(userId, alvo);
+      return sendText(resultado.mensagem);
+    }
+
+    // Comando 'assaltar'
+    if (comando === 'assaltar') {
+      if (!mentions || mentions.length === 0) {
+        return sendText(
+          FONTES.erro("❌ MENÇÃO OBRIGATÓRIA!") + "\n\n" +
+          `Use: ${PREFIX}rpg assaltar @jogador\n` +
+          `Ex: ${PREFIX}rpg assaltar @5511999999999\n\n` +
+          FONTES.perigo("⚠️ Cuidado! Assaltos podem falhar e você perderá golds!")
+        );
+      }
+      
+      const alvo = onlyNumbers(mentions[0]);
+      if (alvo === userId) {
+        return sendText(FONTES.erro("Você não pode assaltar a si mesmo!"));
+      }
+      
+      if (REGIOES[user.regiao].seguranca === 1) {
+        return sendText(
+          FONTES.erro("🚫 CRIMES IMPOSSÍVEIS!") + "\n\n" +
+          `Na ${REGIOES[user.regiao].nome}, a segurança é máxima!\n` +
+          `Viaje para uma região menos segura para cometer crimes.`
+        );
+      }
+      
+      const resultado = assaltar(userId, alvo);
+      return sendText(resultado.mensagem);
     }
 
     // Lista de empregos
@@ -414,19 +649,21 @@ module.exports = {
           return mesmaRegiao || nivelSuficiente || requisitoTop;
         })
         .map(emp => 
-          `${emp.emoji} *${emp.nome}* - ${PREFIX}trabalhar ${emp.nome.split(' ')[1].toLowerCase()}\n` +
-          `⏱️ ${emp.cooldown}s | 🪙 ${emp.ganho.min}-${emp.ganho.max} golds | ✨ +${emp.xp} XP\n` +
-          `📝 ${emp.desc}${emp.risco ? ` | ☠️ Risco: ${emp.risco*100}%` : ''}` +
+          `${emp.emoji} *${emp.nome}* - ${PREFIX}rpg ${emp.nome.split(' ')[1].toLowerCase()}\n` +
+          `${FONTES.tempo(`${emp.cooldown}s`)} | ${FONTES.dinheiro(`${emp.ganho.min}-${emp.ganho.max} golds`)} | ${FONTES.xp(`+${emp.xp} XP`)}\n` +
+          `📝 ${emp.desc}${emp.risco ? ` | ${FONTES.perigo(`Risco: ${emp.risco*100}%`)}` : ''}` +
           `${emp.requisito ? ` | 🏆 ${emp.requisito.toUpperCase()}` : ''}`
         ).join('\n\n');
       
       return sendText(
-        `🏘️ *EMPREGOS DISPONÍVEIS* (${REGIOES[user.regiao].nome})\n\n` +
-        `${empregosDisponiveis}\n\n` +
-        `💰 Saldo: ${user.gold} golds | ✨ ${user.xp}/${xpParaProxNivel(user.nivel)} XP\n` +
-        `📊 Nível: ${user.nivel} | 📍 ${REGIOES[user.regiao].nome}\n` +
+        FONTES.titulo(`🏘️ EMPREGOS DISPONÍVEIS (${REGIOES[user.regiao].nome})`) + "\n\n" +
+        empregosDisponiveis + "\n\n" +
+        FONTES.dinheiro(`💰 Saldo: ${user.gold} golds`) + " | " +
+        FONTES.xp(`✨ ${user.xp}/${xpParaProxNivel(user.nivel)} XP`) + "\n" +
+        FONTES.nivel(`📊 Nível: ${user.nivel}`) + " | " +
+        FONTES.local(`📍 ${REGIOES[user.regiao].nome}`) + "\n" +
         `💼 Histórico: ${user.historico.slice(0, 3).map(h => h.emprego).join(', ') || 'Nenhum'}\n\n` +
-        `📌 Ex: ${PREFIX}trabalhar mineiro`
+        `📌 Ex: ${PREFIX}rpg mineiro`
       );
     }
 
@@ -435,31 +672,31 @@ module.exports = {
       e.nome.toLowerCase().includes(comando)
     );
 
-    if (!emprego) return sendText(`❌ Emprego não encontrado! Use ${PREFIX}trabalhar para listar.`);
+    if (!emprego) return sendText(FONTES.erro(`❌ Emprego não encontrado! Use ${PREFIX}rpg para listar.`));
 
     // Verificar requisitos especiais
     if (emprego.requisito === "top5" && !rankGlobal.some(u => u.userId === userId && rankGlobal.indexOf(u) < 5)) {
       return sendText(
-        `🏆 *EMPREGO EXCLUSIVO!*\n` +
+        FONTES.erro("🏆 EMPREGO EXCLUSIVO!") + "\n\n" +
         `Você precisa estar no Top 5 do ranking para ser ${emprego.nome}!\n` +
-        `Use ${PREFIX}trabalhar rank para ver sua posição.`
+        `Use ${PREFIX}rpg rank para ver sua posição.`
       );
     }
     
     if (emprego.requisito === "top10" && !rankGlobal.some(u => u.userId === userId && rankGlobal.indexOf(u) < 10)) {
       return sendText(
-        `🏆 *EMPREGO EXCLUSIVO!*\n` +
+        FONTES.erro("🏆 EMPREGO EXCLUSIVO!") + "\n\n" +
         `Você precisa estar no Top 10 do ranking para ser ${emprego.nome}!\n` +
-        `Use ${PREFIX}trabalhar rank para ver sua posição.`
+        `Use ${PREFIX}rpg rank para ver sua posição.`
       );
     }
 
     // Verificar região
     if (emprego.regiao !== user.regiao && user.nivel < 5) {
       return sendText(
-        `🌍 *Emprego bloqueado!*\n` +
+        FONTES.erro("🌍 EMPREGO BLOQUEADO!") + "\n\n" +
         `Você precisa estar na região ${REGIOES[emprego.regiao].nome} ou ter nível 5+.\n` +
-        `Sua região atual: ${REGIOES[user.regiao].nome}`
+        FONTES.local(`Sua região atual: ${REGIOES[user.regiao].nome}`)
       );
     }
 
@@ -468,7 +705,7 @@ module.exports = {
     if (user.cooldowns[emprego.nome] > agora) {
       const segundos = Math.ceil((user.cooldowns[emprego.nome] - agora) / 1000);
       return sendText(
-        `⏳ *Aguarde ${segundos}s*\n` +
+        FONTES.erro(`⏳ AGUARDE ${segundos}s`) + "\n\n" +
         `Você pode trabalhar como ${emprego.emoji} ${emprego.nome} novamente em ${segundos} segundos.`
       );
     }
@@ -523,23 +760,24 @@ module.exports = {
     user.historico = user.historico.slice(0, 5);
 
     // Mensagem de resultado
-    let mensagem = `💰 *${resultado === 'sucesso' ? 'TRABALHO CONCLUÍDO' : 'TRABALHO FALHOU'}*\n\n` +
+    let mensagem = FONTES.titulo(`💰 ${resultado === 'sucesso' ? 'TRABALHO CONCLUÍDO' : 'TRABALHO FALHOU'}`) + "\n\n" +
       `${emprego.emoji} *${emprego.nome}*\n` +
-      `🪙 Ganho: ${ganho >= 0 ? '+' : ''}${ganho} golds\n` +
-      `✨ XP: ${resultado === 'sucesso' ? '+' : ''}${emprego.xp} (${user.xp}/${xpParaProxNivel(user.nivel)})\n` +
-      `🏛️ Imposto: -${impostoTrabalho} golds\n`;
+      FONTES.dinheiro(`🪙 Ganho: ${ganho >= 0 ? '+' : ''}${ganho} golds`) + "\n" +
+      FONTES.xp(`✨ XP: ${resultado === 'sucesso' ? '+' : ''}${emprego.xp} (${user.xp}/${xpParaProxNivel(user.nivel)})`) + "\n" +
+      FONTES.dinheiro(`🏛️ Imposto: -${impostoTrabalho} golds`) + "\n";
 
     if (bonusRegiao > 0 || bonusNivel > 0 || bonusRank > 0) {
-      mensagem += `🎁 Bônus: ${bonusRegiao > 0 ? `+${bonusRegiao} (região) ` : ''}` +
+      mensagem += FONTES.bonus("🎁 Bônus: ") +
+        `${bonusRegiao > 0 ? `+${bonusRegiao} (região) ` : ''}` +
         `${bonusNivel > 0 ? `+${bonusNivel} (nível ${user.nivel}) ` : ''}` +
         `${bonusRank > 0 ? `+${bonusRank} (ranking)` : ''}\n`;
     }
 
     if (nivelUp) {
-      mensagem += `\n🎉 *NOVO NÍVEL ${user.nivel}!* Bônus aumentado para ${user.nivel * 3}%`;
+      mensagem += `\n` + FONTES.sucesso(`🎉 *NOVO NÍVEL ${user.nivel}!* Bônus aumentado para ${user.nivel * 3}%`);
     }
 
-    mensagem += `\n⏱️ Próximo trabalho em ${emprego.cooldown}s`;
+    mensagem += `\n` + FONTES.tempo(`⏱️ Próximo trabalho em ${emprego.cooldown}s`);
 
     await sendText(mensagem);
     atualizarRank(); // Atualiza o ranking global
