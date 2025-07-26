@@ -1,35 +1,47 @@
 const { PREFIX } = require(`${BASE_DIR}/config`);
-const { toUserJid, onlyNumbers } = require(`${BASE_DIR}/utils`);
+const { onlyNumbers } = require(`${BASE_DIR}/utils`);
 
-const partidas = new Map(); // grupoId => partida
-const perfis = new Map();   // userJid => { vitórias, mortes, apostas, moedas }
-let ranking = [];           // ordenado por vitórias
+const partidas = new Map(); // por grupo
+const perfis = new Map();   // por usuário
+let ranking = [];
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function resetDadosGlobais() {
+function resetarSistema() {
   perfis.clear();
   ranking = [];
-  console.log("🧹 Dados de perfil e ranking resetados (agendamento de 1h).");
+  console.log("🔄 Sistema de apostas resetado (a cada 1h).");
 }
-setInterval(resetDadosGlobais, 60 * 60 * 1000); // Reset a cada 1h
+setInterval(resetarSistema, 60 * 60 * 1000); // reset a cada 1 hora
 
-// Arte e frases
-const frasesMorte = [
-  "Tentou rolar, tropeçou e... fim.",
-  "Riu do destino. Pagou caro.",
-  "💥 Uma bala, um destino. Foi-se.",
-  "O tambor girou... e o silêncio acabou.",
-  "Desafiou o impossível. E perdeu.",
+const frases = [
+  "Tentou correr... tropeçou... fim.",
+  "Desafiou o destino... perdeu.",
+  "Girou o tambor... BANG.",
+  "Foi corajoso. Mas não sortudo.",
+  "A sorte não estava com ele.",
 ];
-const banner = () => `
-╔══════════════════════════════════╗
-║       ☠️ 𝐑𝐎𝐔𝐋𝐄𝐓𝐓𝐄 𝐃𝐄 𝐌𝐎𝐑𝐓𝐄 ☠️       ║
-╚══════════════════════════════════╝
-“𝑁𝑎̃𝑜 𝑒́ 𝑎 𝑣𝑖𝑑𝑎 𝑞𝑢𝑒 𝑒𝑠𝑐𝑜𝑙ℎ𝑒, 𝑒́ 𝑎 𝑎𝑟𝑚𝑎...”
+
+const arteBanner = () => `
+╔════════════════════════════════╗
+║     ☠️ R O U L E T A   R U S S A ☠️     ║
+╚════════════════════════════════╝
+“𝑁𝑒𝑚 𝑡𝑜𝑑𝑜𝑠 𝑠𝑜𝑏𝑟𝑒𝑣𝑖𝑣𝑒𝑚. 𝑈𝑚 𝑠𝑜́ 𝑣𝑒𝑛𝑐𝑒.”
 `;
+
+function getPerfil(userJid) {
+  if (!perfis.has(userJid)) {
+    perfis.set(userJid, {
+      vitorias: 0,
+      mortes: 0,
+      moedas: 1000,
+      apostado: 0,
+    });
+  }
+  return perfis.get(userJid);
+}
 
 function atualizarRanking() {
   ranking = [...perfis.entries()]
@@ -37,189 +49,166 @@ function atualizarRanking() {
     .slice(0, 10);
 }
 
-function inicializarPerfil(userJid) {
-  if (!perfis.has(userJid)) {
-    perfis.set(userJid, {
-      vitorias: 0,
-      mortes: 0,
-      apostas: 0,
-      moedas: 1000,
-    });
-  }
-}
-
 module.exports = {
   name: "roletarussa",
-  description: "☠️ Jogo dramático de roleta russa com ranking e perfis",
+  description: "☠️ Roleta russa completa com apostas, ranking e perfil",
   commands: ["roletarussa", "entrar", "apostar", "fugir", "rankingaposta", "perfilaposta"],
-  usage: `${PREFIX}roletarussa | ${PREFIX}entrar | ${PREFIX}apostar 100 | ${PREFIX}rankingaposta | ${PREFIX}perfilaposta`,
+  usage: `${PREFIX}roletarussa | ${PREFIX}entrar | ${PREFIX}apostar 100 | ${PREFIX}fugir | ${PREFIX}rankingaposta | ${PREFIX}perfilaposta`,
 
-  handle: async ({ args, command, userJid, remoteJid, sendText }) => {
-    const groupId = remoteJid;
-    inicializarPerfil(userJid);
-    const perfil = perfis.get(userJid);
+  /**
+   * @param {CommandHandleProps} props
+   * @returns {Promise<void>}
+   */
+  handle: async ({ command, args, userJid, remoteJid, sendText }) => {
+    const grupoId = remoteJid;
+    const userId = userJid;
+    const userNum = onlyNumbers(userId);
+    const perfil = getPerfil(userId);
 
-    // Inicia partida
-    if (command === "roletarussa") {
-      if (partidas.has(groupId)) {
-        return sendText("⚠️ Uma roleta já está em andamento.");
-      }
+    switch (command) {
+      case "roletarussa": {
+        if (partidas.has(grupoId)) {
+          return sendText("⚠️ Uma partida já está em andamento.");
+        }
 
-      partidas.set(groupId, {
-        status: "espera",
-        jogadores: new Map(),
-        pote: 0,
-      });
+        partidas.set(grupoId, {
+          status: "espera",
+          jogadores: new Map(), // jid -> aposta
+          pote: 0,
+        });
 
-      await sendText(`${banner()}
-🎯 @${onlyNumbers(userJid)} iniciou a Roleta Russa!
+        await sendText(`${arteBanner()}
+🎯 @${userNum} iniciou a Roleta Russa!
 
-Use *${PREFIX}entrar* para jogar.  
+Use *${PREFIX}entrar* para participar.  
 Use *${PREFIX}apostar 100* para apostar.  
-Tempo: 45s
-Máximo: 12 jogadores`);
+⏱️ Início em 45 segundos...
+Máximo: 12 jogadores.`);
 
-      await sleep(45000);
+        await sleep(45000);
 
-      const partida = partidas.get(groupId);
-      if (!partida || partida.jogadores.size < 2) {
-        partidas.delete(groupId);
-        return sendText("❌ Jogadores insuficientes. Jogo cancelado.");
-      }
+        const partida = partidas.get(grupoId);
+        if (!partida || partida.jogadores.size < 2) {
+          partidas.delete(grupoId);
+          return sendText("❌ Jogadores insuficientes. Jogo cancelado.");
+        }
 
-      partida.status = "rodando";
-      const vivos = [...partida.jogadores.keys()];
+        partida.status = "ativo";
+        const vivos = [...partida.jogadores.keys()];
 
-      await sendText(`🎮 Iniciando roleta com ${vivos.length} jogadores!
-💰 Pote: ${partida.pote} moedas`);
+        await sendText(`🎮 Iniciando partida com ${vivos.length} jogadores...
+💰 Pote acumulado: ${partida.pote} moedas`);
 
-      while (vivos.length > 1) {
-        await sleep(3500);
-        const eliminado = vivos[Math.floor(Math.random() * vivos.length)];
-        vivos.splice(vivos.indexOf(eliminado), 1);
+        while (vivos.length > 1) {
+          await sleep(3500);
+          const eliminado = vivos[Math.floor(Math.random() * vivos.length)];
+          const frase = frases[Math.floor(Math.random() * frases.length)];
+          vivos.splice(vivos.indexOf(eliminado), 1);
 
-        const frase = frasesMorte[Math.floor(Math.random() * frasesMorte.length)];
-        const nome = onlyNumbers(eliminado);
+          const perfilElim = getPerfil(eliminado);
+          perfilElim.mortes++;
 
-        perfis.get(eliminado).mortes++;
+          await sendText(`
+💥 *@${onlyNumbers(eliminado)} foi eliminado!*  
+🗯️ ${frase}
+👥 Restantes: ${vivos.length}
+          `);
+        }
 
-        await sendText(`
-┌───────────────🔫───────────────┐
-│ 💥 *ELIMINADO:* @${nome}     
-│ ${frase}
-└───────────────────────────────┘
+        const vencedor = vivos[0];
+        const perfilV = getPerfil(vencedor);
+        perfilV.vitorias++;
+        perfilV.moedas += partidas.get(grupoId).pote;
 
-Jogadores restantes: ${vivos.length}
+        atualizarRanking();
+        partidas.delete(grupoId);
+
+        return sendText(`
+🏆 *@${onlyNumbers(vencedor)} venceu a roleta russa!*
+💰 Prêmio: ${partidas.get(grupoId)?.pote || 0} moedas
         `);
       }
 
-      const vencedor = vivos[0];
-      const nomeV = onlyNumbers(vencedor);
-      const premio = partidas.get(groupId).pote;
+      case "entrar": {
+        const partida = partidas.get(grupoId);
+        if (!partida || partida.status !== "espera") {
+          return sendText("🚫 Nenhuma partida aguardando jogadores.");
+        }
 
-      perfil.vitorias++;
-      perfil.moedas += premio;
+        if (partida.jogadores.has(userId)) {
+          return sendText("🎮 Você já está na partida.");
+        }
 
-      atualizarRanking();
-      partidas.delete(groupId);
+        if (partida.jogadores.size >= 12) {
+          return sendText("🚷 Limite de 12 jogadores atingido.");
+        }
 
-      return sendText(`
-╔═══════════════╗
-║ 🏆 𝙑𝙀𝙉𝘾𝙀𝘿𝙊𝙍 🏆 ║
-╚═══════════════╝
-
-@${nomeV} sobreviveu até o fim!  
-💰 Recompensa: ${premio} moedas
-`);
-    }
-
-    // Entrar
-    if (command === "entrar") {
-      const partida = partidas.get(groupId);
-      if (!partida || partida.status !== "espera") {
-        return sendText("🚫 Nenhuma roleta aberta ou tempo esgotado.");
+        partida.jogadores.set(userId, 0);
+        return sendText(`🎯 @${userNum} entrou na Roleta Russa!`);
       }
 
-      if (partida.jogadores.has(userJid)) {
-        return sendText("🙋 Você já está na partida.");
+      case "apostar": {
+        const partida = partidas.get(grupoId);
+        if (!partida || partida.status !== "espera") {
+          return sendText("🕐 Só é possível apostar antes da partida iniciar.");
+        }
+
+        if (!partida.jogadores.has(userId)) {
+          return sendText("❗ Use *!entrar* antes de apostar.");
+        }
+
+        const valor = parseInt(args[0]);
+        if (isNaN(valor) || valor < 10) {
+          return sendText("⚠️ Aposta inválida. Mínimo: 10 moedas.");
+        }
+
+        if (perfil.moedas < valor) {
+          return sendText("💸 Você não tem moedas suficientes.");
+        }
+
+        partida.jogadores.set(userId, partida.jogadores.get(userId) + valor);
+        partida.pote += valor;
+        perfil.moedas -= valor;
+        perfil.apostado += valor;
+
+        return sendText(`💰 @${userNum} apostou ${valor} moedas!`);
       }
 
-      if (partida.jogadores.size >= 12) {
-        return sendText("❌ Limite de 12 jogadores atingido.");
+      case "fugir": {
+        const partida = partidas.get(grupoId);
+        if (!partida || !partida.jogadores.has(userId)) {
+          return sendText("🤷 Você não está em nenhuma partida.");
+        }
+
+        partida.jogadores.delete(userId);
+        return sendText(`🏃‍♂️ @${userNum} fugiu da partida como um covarde.`);
       }
 
-      partida.jogadores.set(userJid, 0);
-      return sendText(`🎯 @${onlyNumbers(userJid)} entrou na Roleta!`);
-    }
+      case "rankingaposta": {
+        if (ranking.length === 0) {
+          return sendText("📉 Nenhuma vitória registrada ainda.");
+        }
 
-    // Apostar
-    if (command === "apostar") {
-      const partida = partidas.get(groupId);
-      if (!partida || partida.status !== "espera") {
-        return sendText("⏳ Só é possível apostar antes da roleta começar.");
+        const texto = ranking.map(([jid, p], i) =>
+          `#${i + 1} - @${onlyNumbers(jid)}: ${p.vitorias} vitória(s)`
+        ).join("\n");
+
+        return sendText(`📊 *RANKING GLOBAL DE APOSTAS*\n\n${texto}\n\n🔁 Reset automático em 1 hora.`);
       }
 
-      if (!partida.jogadores.has(userJid)) {
-        return sendText("⚠️ Entre primeiro usando *!entrar*.");
-      }
-
-      const valor = parseInt(args[0]);
-      if (isNaN(valor) || valor < 10) {
-        return sendText("💸 Valor inválido. Mínimo: 10 moedas.");
-      }
-
-      if (perfil.moedas < valor) {
-        return sendText("🚫 Você não tem moedas suficientes.");
-      }
-
-      partida.jogadores.set(userJid, (partida.jogadores.get(userJid) || 0) + valor);
-      partida.pote += valor;
-      perfil.apostas += valor;
-      perfil.moedas -= valor;
-
-      return sendText(`💰 @${onlyNumbers(userJid)} apostou ${valor} moedas!`);
-    }
-
-    // Fugir
-    if (command === "fugir") {
-      const partida = partidas.get(groupId);
-      if (!partida || (partida.status !== "espera" && partida.status !== "rodando")) {
-        return sendText("🚫 Nenhuma partida ativa para fugir.");
-      }
-
-      if (!partida.jogadores.has(userJid)) {
-        return sendText("🤷 Você não está na partida.");
-      }
-
-      partida.jogadores.delete(userJid);
-      return sendText(`🏃‍♂️ @${onlyNumbers(userJid)} fugiu da partida como um covarde...`);
-    }
-
-    // Ranking
-    if (command === "rankingaposta") {
-      if (ranking.length === 0) return sendText("📉 Sem dados de ranking ainda.");
-
-      const tabela = ranking
-        .map(([jid, p], i) => `#${i + 1} - @${onlyNumbers(jid)}: ${p.vitorias} vitória(s)`)
-        .join("\n");
-
-      return sendText(`
-📊 *RANKING GERAL (Reseta a cada 1h)*
-
-${tabela}
-      `);
-    }
-
-    // Perfil
-    if (command === "perfilaposta") {
-      return sendText(`
-👤 *Seu Perfil de Apostas*
-🪙 Moedas: ${perfil.moedas}
+      case "perfilaposta": {
+        return sendText(`
+📄 *Seu Perfil de Apostas*
 🏆 Vitórias: ${perfil.vitorias}
 💀 Mortes: ${perfil.mortes}
-💸 Total Apostado: ${perfil.apostas}
-Reseta em 1h automaticamente.
-      `);
+💸 Moedas: ${perfil.moedas}
+🪙 Total Apostado: ${perfil.apostado}
+🔁 Dados resetam a cada 1 hora.
+        `);
+      }
+
+      default:
+        return sendText("❌ Comando inválido ou indisponível.");
     }
   },
 };
