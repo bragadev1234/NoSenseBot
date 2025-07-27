@@ -1,3 +1,48 @@
+/*
+}
+Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/Rpg/guilda.js: Error: Cannot find module '/data/data/com.termux/files/home/braga-bot-main/src/rpg-system'
+Require stack:
+- /data/data/com.termux/files/home/braga-bot-main/src/commands/member/Rpg/guilda.js
+- /data/data/com.termux/files/home/braga-bot-main/src/utils/index.js
+- /data/data/com.termux/files/home/braga-bot-main/src/connection.js
+- /data/data/com.termux/files/home/braga-bot-main/src/index.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1369:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Module._load (node:internal/modules/cjs/loader:1179:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Module.require (node:internal/modules/cjs/loader:1449:12)
+    at require (node:internal/modules/helpers:135:16)
+    at Object.<anonymous> (/data/data/com.termux/files/home/braga-bot-main/src/commands/member/Rpg/guilda.js:2:40)
+    at Module._compile (node:internal/modules/cjs/loader:1692:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/data/data/com.termux/files/home/braga-bot-main/src/commands/member/Rpg/guilda.js',
+    '/data/data/com.termux/files/home/braga-bot-main/src/utils/index.js',
+    '/data/data/com.termux/files/home/braga-bot-main/src/connection.js',
+    '/data/data/com.termux/files/home/braga-bot-main/src/index.js'
+  ]
+}
+Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/Rpg/rpg-system.js: ReferenceError: Cannot access 'BASE_DIR' before initialization
+    at Object.<anonymous> (/data/data/com.termux/files/home/braga-bot-main/src/commands/member/Rpg/rpg-system.js:2:41)
+    at Module._compile (node:internal/modules/cjs/loader:1692:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
+    at Module.load (node:internal/modules/cjs/loader:1427:32)
+    at Module._load (node:internal/modules/cjs/loader:1250:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Module.require (node:internal/modules/cjs/loader:1449:12)
+    at require (node:internal/modules/helpers:135:16)
+    at /data/data/com.termux/files/home/braga-bot-main/src/utils/index.js:228:18
+
+
+*/
+
+
+
+
+
 // rpg-system.js
 const { PREFIX, BASE_DIR } = require(`${BASE_DIR}/config`);
 const fs = require('fs');
