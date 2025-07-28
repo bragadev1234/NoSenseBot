@@ -1,27 +1,27 @@
 module.exports = {
   welcomeMessage: `
-╔═════ஓ๑🌟๑ஓ═════╗
-   *𝖘𝖊𝖏𝖆 𝖇𝖊𝖒-𝖛𝖎𝖓𝖉𝖔,* @member!
-╚═════ஓ๑🌟๑ஓ═════╝
+🕷🕱━━━━━━━━━━━━━━━━━━━━━━━━🕱🕷
+      ༺⃝𖤍 𝕾𝖊𝖏𝖆 𝕻𝖗𝖔𝖋𝖆𝖓𝖔, @member! 𖤍⃝༻
+🕷🕱━━━━━━━━━━━━━━━━━━━━━━━━🕱🕷
 
-⛧ Consulte as regras: !regras  
-⛧ Respeite todos os membros  
-⛧ Compartilhe conteúdo com bom senso  
+☠︎ Consulte os *Mandamentos*: !regras  
+☠︎ Respeite os *Filhos da Noite*  
+☠︎ Compartilhe apenas *Conhecimento Proibido*  
 
-╭─────────────༺★༻────────────╮  
-  ➤ *Aproveite sua estadia.*  
-╰─────────────༺★༻────────────╯
-  `,
+╭─────────༺☠︎︎༻─────────╮  
+  𖤍 *Que sua estadia seja... eterna.*  
+╰─────────༺☠︎︎༻─────────╯
+`,
 
   exitMessage: `
-╔═༺⚠️༻═╗
- *@member saiu do grupo...*  
-╚═༺⚠️༻═╝
+🕷🕱━━━━━━━━━━━━━━━━🕱🕷
+   *@member abandonou o coven...*  
+🕷🕱━━━━━━━━━━━━━━━━🕱🕷
 
-✞ O grupo está *1% mais leve.*  
-✞ *Não* derramaremos uma lágrima.  
-✞ Até nunca mais (ou até a próxima).
+⚰︎ O círculo está *1% mais puro.*  
+⚰︎ *Nenhuma* vela se apagou por isso.  
+⚰︎ Até o *Juízo Final* (ou não).
 
-> *─ 𝔉𝔦𝔪 ─*
-  `
+> *─ 𝕱𝖎𝖒 𝕯𝖔 𝕰𝖘𝖕𝖊𝖑𝖍𝖔 ─*
+`
 };
