@@ -2,139 +2,122 @@ const { PREFIX } = require(`${BASE_DIR}/config`);
 const { InvalidParameterError } = require(`${BASE_DIR}/errors`);
 const { isGroup, toUserJid, onlyNumbers } = require(`${BASE_DIR}/utils`);
 
-// Banco de dados simulado para banimentos diários
-const dailyBans = new Map(); // {remoteJid: {count: number, lastReset: Date}}
+// Configurações
+const MAX_DAILY_BANS = 10;
+const COOLDOWN_TIME = 30 * 60 * 1000; // 30 minutos
 
-// Lista de números protegidos (com mensagens mais "sérias" mas ainda falsas)
-const PROTECTED_NUMBERS = {
-  // Número do dono (acesso total)
-  "55994271816": `
-  ⚠️ *Acesso negado - Nível de permissão insuficiente*
-  Este usuário possui imunidade total ao sistema de banimento.
-  `,
-  
-  // Número com mensagem "especial"
-  "559984271816": `
-  ❗ *Operação bloqueada - Usuário protegido*
-  Você não tem autorização para executar esta ação.
-  `,
-
-  // Outros números protegidos
-  "21985886256": "🔒 Este usuário está em uma lista de proteção.",
-  "21991161241": "🚫 Ação não permitida contra este membro.",
-  "6381164925": "⚠️ Você não pode banir este número.",
-  "22997506007": "⛔ Proteção ativa - Comando bloqueado.",
-  "15997146763": "🔐 Acesso restrito para este contato.",
-  "5491588668": "❗ Usuário imune a banimentos.",
-  "3196800493": "🛡️ Defesas ativas - Tente outro alvo.",
-  "21959317800": "🚨 Este número não pode ser banido.",
-  "3597816349": "⚡ Erro: Permissões insuficientes."
+// Banco de dados em memória
+const banData = {
+  dailyCount: {},
+  cooldowns: {},
+  logs: []
 };
 
+// Lista de números protegidos (COM MENSAGENS OFENSIVAS)
+const PROTECTED_NUMBERS = {
+  "5555994271816": { // DONO
+    message: `
+    💢 VAI TOMAR NO SEU CU, MERDA!
+    👎 VOCÊ NÃO TEM NEM SOMBRA DO PODER NECESSÁRIO!
+    🖕 VOLTA PRO BURACO, INSETO!
+    `,
+    level: "DEUS"
+  },
+  "55559984271816": { // ADMIN
+    message: `
+    🤡 OLHA O PALHAÇO QUERENDO DAR BAN!
+    🧠 CÉREBRO DE AMEBA DETECTADO!
+    💩 TENTATIVA PATÉTICA REGISTRADA!
+    `,
+    level: "ADMIN"
+  },
+  "5521985886256": {
+    message: `
+    🚫 BURRO DEMAIS PRA ISSO!
+    🤏 SER IGNORANTE, NEM TENTE!
+    `,
+    level: "MODERADOR"
+  },
+  "5521991161241": {
+    message: `
+    😂😂😂😂😂😂
+    🤣 TÁ DE ZOAÇÃO, NÉ? 
+    😭 NINGUÉM TE LEVA A SÉRIO!
+    `,
+    level: "PROTEGIDO"
+  }
+};
+
+// Verificar proteção
+function checkProtected(targetJid) {
+  const num = onlyNumbers(targetJid);
+  return PROTECTED_NUMBERS[num] || null;
+}
+
 module.exports = {
-  name: "banirnumero",
-  description: "Simula um banimento (apenas simulação)",
-  commands: ["banirnumero", "banir", "bn"],
-  usage: `${PREFIX}banirnumero @usuario`,
-  /**
-   * @param {CommandHandleProps} props
-   * @returns {Promise<void>}
-   */
-  handle: async ({
-    args,
-    socket,
-    remoteJid,
-    userJid,
-    sendText,
-    sendErrorReply,
-    sendWaitReply,
-    sendSuccessReact,
-    isReply,
-    replyJid
-  }) => {
-    // Verificação básica de grupo
+  name: "banir",
+  description: "Sistema de banimento falso (local e ofensivo)",
+  commands: ["banwr", "foder"],
+  usage: `${PREFIX}banir @usuário`,
+  handle: async ({ args, userJid, remoteJid, sendText, sendErrorReply, sendWaitReply }) => {
+    
+    // Verificação de grupo
     if (!isGroup(remoteJid)) {
-      throw new InvalidParameterError("Este comando só funciona em grupos.");
+      await sendErrorReply("VAI TOMAR NO CU! ISSO SÓ FUNCIONA EM GRUPO!");
+      return;
     }
 
     // Obter alvo
-    const targetJid = isReply ? replyJid : (args[0] ? toUserJid(args[0]) : null);
-    
+    const targetJid = args[0] ? toUserJid(args[0]) : null;
     if (!targetJid) {
-      await sendErrorReply("Você precisa mencionar alguém ou responder uma mensagem.");
+      await sendErrorReply("SEU ANIMAL! TEM QUE MENCIONAR ALGUÉM!");
       return;
     }
 
-    const userNumber = onlyNumbers(userJid);
-    const targetNumber = onlyNumbers(targetJid);
-    const isAdmin = userNumber === "55994271816"; // Dono
-
-    // Verificar se o alvo está protegido
-    if (PROTECTED_NUMBERS[targetNumber]) {
-      await sendText(PROTECTED_NUMBERS[targetNumber], {
-        mentions: [targetJid]
-      });
+    // Verificar se está protegido (OFENSIVO)
+    const protected = checkProtected(targetJid);
+    if (protected) {
+      await sendText(protected.message, { mentions: [targetJid] });
+      await sendText(`📛 NÍVEL DE PROTEÇÃO: ${protected.level}`);
       return;
     }
 
-    // Controle de banimentos diários
-    const now = new Date();
-    if (!dailyBans.has(remoteJid)) {
-      dailyBans.set(remoteJid, { count: 0, lastReset: now });
-    }
-
-    const groupData = dailyBans.get(remoteJid);
-    if (now.getDate() !== groupData.lastReset.getDate()) {
-      groupData.count = 0;
-      groupData.lastReset = now;
-    }
-
-    // Limite de 10 banimentos/dia (exceto para admin)
-    if (!isAdmin && groupData.count >= 10) {
-      await sendErrorReply("Limite diário de banimentos atingido (10/10).");
+    // Verificar cooldown
+    const userNum = onlyNumbers(userJid);
+    if (banData.cooldowns[userNum] > Date.now()) {
+      const remaining = Math.ceil((banData.cooldowns[userNum] - Date.now()) / 60000);
+      await sendErrorReply(`CALMA AÍ, DESESPERADO! ESPERA ${remaining} MINUTOS!`);
       return;
     }
 
-    // Iniciar processo "sério" de banimento falso
-    await sendWaitReply("Analisando permissões...");
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Processo de banimento falso
+    await sendWaitReply("PERA AÍ, TÔ VENDO SE VOCÊ NÃO É UM LIXO...");
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
-    if (!isAdmin) groupData.count++;
+    // 70% chance de falha
+    const success = Math.random() < 0.3;
 
-    await sendText("✅ Solicitação aceita. Iniciando procedimento...");
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    await sendText(`🔍 Verificando dados do alvo: @${targetNumber}...`, {
-      mentions: [targetJid]
-    });
-    await new Promise(resolve => setTimeout(resolve, 2500));
-
-    // 60% de chance de falha
-    const shouldFail = !isAdmin && Math.random() < 0.6;
-
-    if (shouldFail) {
-      const errors = [
-        "⚠️ Erro: O alvo possui proteções ativas.",
-        "⏳ Sistema sobrecarregado. Tente novamente mais tarde.",
-        "🔒 Falha na autenticação. Permissões insuficientes.",
-        "🛡️ Mecanismo de defesa do alvo bloqueou a ação."
-      ];
-      await sendText(errors[Math.floor(Math.random() * errors.length)]);
-    } else {
-      await sendText("⚙️ Removendo permissões do alvo...");
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      await sendText("🗑️ Limpando dados de registro...");
+    if (success) {
+      await sendText("PORRA! DEU CERTO, MAS NÃO SE ACHA!");
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      await sendText(`☑️ Banimento concluído: @${targetNumber} removido.`, {
+      await sendText(`🔪 @${onlyNumbers(targetJid)} FOI BANIDO (MENTIRA)`, {
         mentions: [targetJid]
       });
-      await sendSuccessReact();
-      
-      // Mostrar contador
-      const remaining = isAdmin ? "∞" : (10 - groupData.count);
-      await sendText(`📊 Banimentos hoje: ${groupData.count}/10 (Restantes: ${remaining})`);
+    } else {
+      await sendText("KKKKKKKKKKKKKKK QUE FRACASSADO!");
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await sendText("VOCÊ É TÃO BURRO QUE NEM PRA BANIR VOCÊ SERVE!");
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await sendText(`🤡 OLHA O @${onlyNumbers(userJid)} TENTANDO BANIR! QUE VERGONHA!`, {
+        mentions: [userJid]
+      });
     }
-  },
+
+    // Atualizar cooldown
+    banData.cooldowns[userNum] = Date.now() + COOLDOWN_TIME;
+    
+    // Atualizar contagem diária (simplificado)
+    if (!banData.dailyCount[remoteJid]) banData.dailyCount[remoteJid] = 0;
+    banData.dailyCount[remoteJid]++;
+  }
 };
