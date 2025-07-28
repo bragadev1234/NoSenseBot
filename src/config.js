@@ -1,13 +1,13 @@
 const path = require("path");
 
 // Prefixo dos comandos.
-exports.PREFIX = "!";
+exports.PREFIX = "?";
 
 // Emoji do bot (mude se preferir).
-exports.BOT_EMOJI = "ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧";
+exports.BOT_EMOJI = "𖤍⃝⛧";
 
 // Nome do bot.
-exports.BOT_NAME = "𝕭𝖗𝖆𝖌𝖆𝕭𝖔𝖙";
+exports.BOT_NAME = "𝕭𝖗𝖆𝖌𝖆𝕭𝖔𝖙 𖤍⃝⛧  ";
 
 // Número do bot.
 // Apenas números, exatamente como está no WhatsApp.
