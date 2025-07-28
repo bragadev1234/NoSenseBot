@@ -1,132 +1,3 @@
-/*
-
-[TAKESHI BOT | SUCCESS] Fui conectado com sucesso!
-Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/menu.js: /data/data/com.termux/files/home/braga-bot-main/src/menu.js:90
-  return »
-         
-
-SyntaxError: Invalid or unexpected token
-    at wrapSafe (node:internal/modules/cjs/loader:1624:18)
-    at Module._compile (node:internal/modules/cjs/loader:1666:20)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
-    at Module.load (node:internal/modules/cjs/loader:1427:32)
-    at Module._load (node:internal/modules/cjs/loader:1250:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-    at Object.<anonymous> (/data/data/com.termux/files/home/braga-bot-main/src/commands/member/menu.js:44:25)
-Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/rpg.js: /data/data/com.termux/files/home/braga-bot-main/src/commands/member/rpg.js:205
-  const progress = Math.min(100, Math.floor((currentXP / xpNeeded) * 100);
-                                                                        ^
-
-SyntaxError: missing ) after argument list
-    at wrapSafe (node:internal/modules/cjs/loader:1624:18)
-    at Module._compile (node:internal/modules/cjs/loader:1666:20)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
-    at Module.load (node:internal/modules/cjs/loader:1427:32)
-    at Module._load (node:internal/modules/cjs/loader:1250:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-    at /data/data/com.termux/files/home/braga-bot-main/src/utils/index.js:228:18
-Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/menu.js: /data/data/com.termux/files/home/braga-bot-main/src/menu.js:90
-  return »
-         
-
-SyntaxError: Invalid or unexpected token
-    at wrapSafe (node:internal/modules/cjs/loader:1624:18)
-    at Module._compile (node:internal/modules/cjs/loader:1666:20)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
-    at Module.load (node:internal/modules/cjs/loader:1427:32)
-    at Module._load (node:internal/modules/cjs/loader:1250:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-    at Object.<anonymous> (/data/data/com.termux/files/home/braga-bot-main/src/commands/member/menu.js:44:25)
-Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/rpg.js: /data/data/com.termux/files/home/braga-bot-main/src/commands/member/rpg.js:205
-  const progress = Math.min(100, Math.floor((currentXP / xpNeeded) * 100);
-                                                                        ^
-
-SyntaxError: missing ) after argument list
-    at wrapSafe (node:internal/modules/cjs/loader:1624:18)
-    at Module._compile (node:internal/modules/cjs/loader:1666:20)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
-    at Module.load (node:internal/modules/cjs/loader:1427:32)
-    at Module._load (node:internal/modules/cjs/loader:1250:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-    at /data/data/com.termux/files/home/braga-bot-main/src/utils/index.js:228:18
-Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/menu.js: /data/data/com.termux/files/home/braga-bot-main/src/menu.js:90
-  return »
-         
-
-SyntaxError: Invalid or unexpected token
-    at wrapSafe (node:internal/modules/cjs/loader:1624:18)
-    at Module._compile (node:internal/modules/cjs/loader:1666:20)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
-    at Module.load (node:internal/modules/cjs/loader:1427:32)
-    at Module._load (node:internal/modules/cjs/loader:1250:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-    at Object.<anonymous> (/data/data/com.termux/files/home/braga-bot-main/src/commands/member/menu.js:44:25)
-Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/rpg.js: /data/data/com.termux/files/home/braga-bot-main/src/commands/member/rpg.js:205
-  const progress = Math.min(100, Math.floor((currentXP / xpNeeded) * 100);
-                                                                        ^
-
-SyntaxError: missing ) after argument list
-    at wrapSafe (node:internal/modules/cjs/loader:1624:18)
-    at Module._compile (node:internal/modules/cjs/loader:1666:20)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
-    at Module.load (node:internal/modules/cjs/loader:1427:32)
-    at Module._load (node:internal/modules/cjs/loader:1250:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-    at /data/data/com.termux/files/home/braga-bot-main/src/utils/index.js:228:18
-Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/menu.js: /data/data/com.termux/files/home/braga-bot-main/src/menu.js:90
-  return »
-         
-
-SyntaxError: Invalid or unexpected token
-    at wrapSafe (node:internal/modules/cjs/loader:1624:18)
-    at Module._compile (node:internal/modules/cjs/loader:1666:20)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
-    at Module.load (node:internal/modules/cjs/loader:1427:32)
-    at Module._load (node:internal/modules/cjs/loader:1250:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-    at Object.<anonymous> (/data/data/com.termux/files/home/braga-bot-main/src/commands/member/menu.js:44:25)
-Erro ao importar /data/data/com.termux/files/home/braga-bot-main/src/commands/member/rpg.js: /data/data/com.termux/files/home/braga-bot-main/src/commands/member/rpg.js:205
-  const progress = Math.min(100, Math.floor((currentXP / xpNeeded) * 100);
-                                                                        ^
-
-SyntaxError: missing ) after argument list
-    at wrapSafe (node:internal/modules/cjs/loader:1624:18)
-    at Module._compile (node:internal/modules/cjs/loader:1666:20)
-    at Module._extensions..js (node:internal/modules/cjs/loader:1824:10)
-    at Module.load (node:internal/modules/cjs/loader:1427:32)
-    at Module._load (node:internal/modules/cjs/loader:1250:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
-    at Module.require (node:internal/modules/cjs/loader:1449:12)
-    at require (node:internal/modules/helpers:135:16)
-    at /data/data/com.termux/files/home/braga-bot-main/src/utils/index.js:228:18
-^C
-braga ★ 02:23 ~/braga-bot-main ➤ 
-
-
-
-*/
 const { BOT_NAME, PREFIX } = require("./config");
 const packageInfo = require("../package.json");
 
@@ -216,29 +87,29 @@ function getToolsSection() {
 }
 
 function getMediaSection() {
-  return »
+  return `
 📯 𝕸𝖊𝖑𝖔𝖉𝖎𝖆𝖘 𝕯𝖊𝖒𝖔𝖓í𝖆𝖈𝖆𝖘 📯
 𖤍 ${PREFIX}play/play-video » Invoca mídia
 𖤍 ${PREFIX}tik-tok » Vidência do TikTok
 𖤍 ${PREFIX}ttp » Texto em papiro digital
 𖤍 ${PREFIX}to-image » Selo para imagem
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-«;
+`;
 }
 
 function getAISection() {
-  return »
+  return `
 🔮 𝕴𝖓𝖙𝖊𝖑𝖎𝖌ê𝖓𝖈𝖎𝖆 𝕹𝖊𝖈𝖗𝖔𝖒𝖆𝖓𝖙𝖊 🔮
 𖤍 ${PREFIX}gemini » Diálogo com espíritos
 𖤍 ${PREFIX}ia-sticker » Selos artificiais
 𖤍 ${PREFIX}pixart » Arte das trevas
 𖤍 ${PREFIX}stable-diffusion-turbo » Visões IA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-«;
+`;
 }
 
 function getGamesSection() {
-  return »
+  return `
 🎴 𝕽𝖎𝖙𝖚𝖆𝖎𝖘 𝕯𝖎𝖛𝖊𝖗𝖙𝖎𝖉𝖔𝖘 🎴
 𖤍 ${PREFIX}casar » Pacto matrimonial
 𖤍 ${PREFIX}cassanic » Roda da fortuna
@@ -248,16 +119,16 @@ function getGamesSection() {
 𖤍 ${PREFIX}dado » Sorte dos deuses
 𖤍 ${PREFIX}beijar/abracar » Afeto profano
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-«;
+`;
 }
 
 function getEffectsSection() {
-  return »
+  return `
 🖤 𝕰𝖘𝖕𝖊𝖑𝖍𝖔𝖘 𝕯𝖎𝖘𝖙𝖔𝖗𝖈𝖎𝖉𝖔𝖘 🖤
 𖤍 ${PREFIX}blur » Visão perturbada
 𖤍 ${PREFIX}cadeia/rip » Efeitos fúnebres
 𖤍 ${PREFIX}inverter » Mundo invertido
 𖤍 ${PREFIX}bolsonaro » Visão política
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-«;
+`;
 }
