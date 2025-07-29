@@ -144,4 +144,4 @@ function checkWin(board, symbol) {
   }
 
   return false;
-              }
+}
