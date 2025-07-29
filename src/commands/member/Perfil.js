@@ -129,7 +129,7 @@ module.exports = {
           ];
           break;
           
-        case "559984271816": // Engrenagem
+        case "000000": // Engrenagem
           userRole = "Engrenagem Sombria do Sistema";
           description = "A mente por trás do código. Suicidamente lógico, mortalmente leal aos seus.";
           extraFields = [
@@ -160,15 +160,18 @@ module.exports = {
           ];
           break;
           
-        case "5521985886256": // Dono do bot (Se'Young)
+        case "559984271816": // Dono do bot (Se'Young)
           userRole = "Rooftop Sword Master";
-          description = "Mente vazia, oficina de pensamentos vazios. A melancolia feita carne.";
+          description = "Mente vazia, oficina de pensamentos vazios. A melancolia feita carne, Engrenagem Sombria do Sistema.";
           extraFields = [
             "☁️ *Depressão:* -2311",
             "💀 *Chance Diária de Suicídio:* 9%",
             "🗡️ *Skill com Espadas:* 100%",
             "🕳️ *Vazio Existencial:* ∞",
-            "🌌 *Identificação:* Se'Young"
+            "🌌 *Identificação:* Se'Young",
+            "⚙️ *Lógica:* 98%",
+            "🔐 *Lealdade:* 100%",
+            "🤖 *Precisão:* 97%"
           ];
           break;
       }
