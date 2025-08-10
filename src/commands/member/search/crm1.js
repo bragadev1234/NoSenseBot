@@ -1,7 +1,7 @@
 
 /**
  * Consulta de CRM (Médicos)
- * @author SeuNome
+ * @author braga
  */
 const { PREFIX } = require(`${BASE_DIR}/config`);
 
