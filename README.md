@@ -56,25 +56,25 @@ cd /sdcard
 4 - Baixe o repositório.
 
 ```sh
-wget https://github.com/braga2311/bragra-bot/archive/refs/heads/main.zip -O bragra-bot.zip
+wget https://github.com/braga2311/braga-bot/archive/refs/heads/main.zip -O braga-bot.zip
 ```
 
 5 - Extraia o arquivo baixado.
 
 ```sh
-unzip bragra-bot.zip
+unzip braga-bot.zip
 ```
 
 6 - Renomeie a pasta extraída.
 
 ```sh
-mv bragra-bot-main bragra-bot
+mv braga-bot-main bot
 ```
 
 7 - Entre na pasta do bot.
 
 ```sh
-cd bragra-bot
+cd bot
 ```
 
 8 - Habilite permissões de leitura e escrita.
