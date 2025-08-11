@@ -1,6 +1,7 @@
 /**
  * Desenvolvido por: Dev Gui
  * Implementação dos metadados feita por: MRX
+ * Melhoria e possibilidades de efeitos: Braga
  *
  * @author Dev Gui
  */
@@ -12,9 +13,9 @@ const { PREFIX, BOT_NAME, BOT_EMOJI } = require(`${BASE_DIR}/config`);
 
 module.exports = {
   name: "sticker",
-  description: "Cria figurinhas de imagem, gif ou vídeo (máximo 10 segundos).",
+  description: "Cria figurinhas de imagem, gif ou vídeo (máximo 10 segundos) com efeitos opcionais.",
   commands: ["f", "s", "sticker", "fig"],
-  usage: `${PREFIX}sticker (marque ou responda uma imagem/gif/vídeo)`,
+  usage: `${PREFIX}sticker [efeito] (marque ou responda uma imagem/gif/vídeo)`,
   handle: async ({
     isImage,
     isVideo,
@@ -26,6 +27,7 @@ module.exports = {
     sendSuccessReact,
     sendStickerFromFile,
     userJid,
+    args,
   }) => {
     if (!isImage && !isVideo) {
       throw new InvalidParameterError(
@@ -47,6 +49,48 @@ module.exports = {
 
     const outputPath = getRandomName("webp");
     let inputPath = null;
+
+    // Função que retorna o filtro FFmpeg para o efeito pedido
+    function getEffectFilter(effectName) {
+      switch (effectName) {
+        case "blur":
+          return "boxblur=10:1";
+        case "grayscale":
+          return "hue=s=0";
+        case "sepia":
+          return "colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131";
+        case "invert":
+          return "negate";
+        case "cartoon":
+          return "edgedetect=low=0.1:high=0.4";
+        case "pixelate":
+          return "scale=32:32,scale=512:512:flags=neighbor";
+        case "vintage":
+          return "colorchannelmixer=.9:.5:.1:0:.3:.7:.1:0:.2:.3:.4";
+        case "emboss":
+          return "convolution='-2 -1 0 -1 1 1 0 1 2'";
+        case "glow":
+          return "gblur=sigma=10";
+        case "sketch":
+          return "format=gray,edgedetect=mode=colormix:low=0.1:high=0.4";
+        case "flip":
+          return "hflip,vflip";
+        case "mirror":
+          return "hflip";
+        case "rotate":
+          return "rotate=PI/6";
+        case "negate":
+          return "negate";
+        case "contrast":
+          return "eq=contrast=1.5";
+        default:
+          return null; // sem filtro
+      }
+    }
+
+    // Extrai o efeito do args[0] (se informado)
+    const effect = args && args.length > 0 ? args[0].toLowerCase() : null;
+    const effectFilter = getEffectFilter(effect);
 
     try {
       if (isImage) {
@@ -70,10 +114,15 @@ module.exports = {
           }
         }
 
+        let filterCmd = "scale=512:512:force_original_aspect_ratio=decrease";
+        if (effectFilter) {
+          filterCmd += `,${effectFilter}`;
+        }
+
         await new Promise((resolve, reject) => {
           const { exec } = require("child_process");
 
-          const cmd = `ffmpeg -i "${inputPath}" -vf "scale=512:512:force_original_aspect_ratio=decrease" -f webp -quality 90 "${outputPath}"`;
+          const cmd = `ffmpeg -i "${inputPath}" -vf "${filterCmd}" -f webp -quality 90 "${outputPath}"`;
 
           exec(cmd, (error, _, stderr) => {
             if (error) {
@@ -120,10 +169,18 @@ module.exports = {
           );
         }
 
+        // Construção do filter_complex para vídeo com efeito
+        let filterComplex = "[0:v] scale=512:512, fps=30";
+        if (effectFilter) {
+          filterComplex += `,${effectFilter}`;
+        }
+        filterComplex +=
+          ", split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse";
+
         await new Promise((resolve, reject) => {
           const { exec } = require("child_process");
 
-          const cmd = `ffmpeg -y -i "${inputPath}" -vcodec libwebp -fs 0.99M -filter_complex "[0:v] scale=512:512, fps=30, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse" -f webp "${outputPath}"`;
+          const cmd = `ffmpeg -y -i "${inputPath}" -vcodec libwebp -fs 0.99M -filter_complex "${filterComplex}" -f webp "${outputPath}"`;
 
           exec(cmd, (error, _, stderr) => {
             if (error) {
