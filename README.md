@@ -38,7 +38,7 @@ Não nos responsabilizamos por qualquer uso indevido deste bot. É de responsabi
 _Não tem o Termux? [Clique aqui e baixe a última versão](https://www.mediafire.com/file/wxpygdb9bcb5npb/Termux_0.118.3_Dev_Gui.apk) ou [clique aqui e baixe versão da Play Store](https://play.google.com/store/apps/details?id=com.termux) caso a versão do MediaFire anterior não funcione._
 
 ```sh
-pkg upgrade -y && pkg update -y && pkg install git -y && pkg install nodejs-lts -y && pkg install ffmpeg -y && pkg install unzip -y && pkg install python python-pip &&  npm install moment node-featch jsdom axios cheerio && npm install node-summarizer && npm install google-translate-api-x && npm install natural stopword wav
+pkg upgrade -y && pkg update -y && pkg install git -y && pkg install nodejs-lts -y && pkg install ffmpeg -y && pkg install unzip -y && pkg install python python-pip &&  npm install moment node-featch jsdom axios cheerio && npm install node-summarizer && npm install google-translate-api-x && npm install natural stopword lodash compromise sentiment
 ```
 
 2 - Habilite o acesso da pasta storage, no termux.
