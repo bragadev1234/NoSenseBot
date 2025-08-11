@@ -5,84 +5,69 @@ exports.menuMessage = (senderName) => {
   const date = new Date();
 
   return `
-╭── ❖ 👑 𝐃𝐎𝐍𝐎 ❖ ──╮
-│ ${PREFIX}set-menu-image 🖼️
-╰─────────────────╯
+🌟━━━━━━━━━━━━━━━━━━🌟  
+       *MENU DO ${BOT_NAME}*  
+🌟━━━━━━━━━━━━━━━━━━🌟  
 
-╭── ❖ 🛡️ 𝐀𝐃𝐌𝐈𝐍 ❖ ──╮
-│ ${PREFIX}menurpg 🎭
-│ ${PREFIX}abrir / fechar 🚪
-│ ${PREFIX}ban 🔨
-│ ${PREFIX}promover / rebaixar 🎖️
-│ ${PREFIX}limpar 🧹
-│ ${PREFIX}anti-link 🔗🚫
-│ ${PREFIX}welcome 🎉
-│ ${PREFIX}exit 👋
-│ ${PREFIX}marcartodos 📢
-╰─────────────────╯
+🔷 *ADMINISTRAÇÃO* 🔷  
+1. ${PREFIX}abrir/fechar 🚪  
+2. ${PREFIX}ban 🔨  
+3. ${PREFIX}promover/rebaixar 🎖️  
+4. ${PREFIX}limpar 🧹  
+5. ${PREFIX}anti-link 🔗🚫  
+6. ${PREFIX}anti-audio 🔇🚫  
+7. ${PREFIX}anti-sticker 🖼️🚫  
+8. ${PREFIX}anti-video 🎥🚫  
+9. ${PREFIX}anti-document 📄🚫  
+10. ${PREFIX}welcome 🎉  
+11. ${PREFIX}exit 👋  
+12. ${PREFIX}marcartodos 📢  
+13. ${PREFIX}agendar-mensagem ⏰  
 
-╭── ❖ 🔍 𝐂𝐎𝐍𝐒𝐔𝐋𝐓𝐀𝐒 ❖ ──╮
-│ ${PREFIX}consultacep 🏠
-│ ${PREFIX}consultaip 🌐
-│ ${PREFIX}consultacnpj 🏢
-│ ${PREFIX}consultaddd ☎️
-│ ${PREFIX}consultaplaca 🚗
-│ ${PREFIX}validarcpf 🪪
-│ ${PREFIX}validarrg 📄
-│ ${PREFIX}validarcnh 🧾
-│ ${PREFIX}validarpis 💳
-│ ${PREFIX}validartitulo 🗳️
-│ ${PREFIX}consultabim 🧑‍🎓
-│ ${PREFIX}consultadd 📍
-╰─────────────────────╯
+🔹 *INFORMAÇÕES* 🔹  
+14. ${PREFIX}cep 🪪  
+15. ${PREFIX}ip 📄  
+16. ${PREFIX}loctel 🧾  
+17. ${PREFIX}cnpj 💳  
+18. ${PREFIX}placa 🗳️  
+19. ${PREFIX}bin 🧑‍🎓  
+20. ${PREFIX}cpf 📍  
+21. ${PREFIX}ddd 📞  
+22. ${PREFIX}perfil 🙋  
+23. ${PREFIX}signododia ♈  
+24. ${PREFIX}ascendentedodia 🌌  
 
-╭── ❖ 🛠️ 𝐔𝐓𝐈𝐋𝐈𝐓𝐀́𝐑𝐈𝐎𝐒 ❖ ──╮
-│ ${PREFIX}ping 📶
-│ ${PREFIX}revelar 👁️
-│ ${PREFIX}perfil 🙋
-│ ${PREFIX}google-search 🔎
-│ ${PREFIX}yt-search ▶️
-╰────────────────────────╯
+🔹 *MÍDIA & ARQUIVOS* 🔹  
+25. ${PREFIX}gerar-link 🌐  
+26. ${PREFIX}revelar 👁️  
+27. ${PREFIX}to-image 🖼️  
+28. ${PREFIX}video 🎥  
+29. ${PREFIX}tocar 🎵  
+30. ${PREFIX}ytsearch ▶️  
+31. ${PREFIX}google 🔎  
+32. ${PREFIX}resumir-pdf 📑✂️  
+33. ${PREFIX}resumir-texto 📝✂️  
 
-╭── ❖ 🎬 𝐌𝐈́𝐃𝐈𝐀 ❖ ──╮
-│ ${PREFIX}play / play-video 🎵
-│ ${PREFIX}tik-tok 🎥
-│ ${PREFIX}ttp 🧷
-│ ${PREFIX}to-image 🖼️
-╰────────────────────╯
+🔹 *DIVERSÃO & INTERAÇÃO* 🔹  
+34. ${PREFIX}casar 💍  
+35. ${PREFIX}cassanic 🎰  
+36. ${PREFIX}lutar ⚔️  
+37. ${PREFIX}matar/socar 🩸  
+38. ${PREFIX}dado 🎲  
+39. ${PREFIX}beijar/abracar 💋🤗  
+40. ${PREFIX}torta 🥧  
+41. ${PREFIX}caracoroa 🪙  
+42. ${PREFIX}tapa 👋  
+43. ${PREFIX}jantar 🍽️  
 
-╭── ❖ 🤖 𝐈𝐀 ❖ ──╮
-│ ${PREFIX}gemini 💬
-│ ${PREFIX}ia-sticker 🪄
-│ ${PREFIX}pixart 🎨
-│ ${PREFIX}stable-diffusion-turbo 🧠
-╰────────────────╯
+🔹 *UTILIDADES* 🔹  
+44. ${PREFIX}ping 📶  
 
-╭── ❖ 🎉 𝐃𝐈𝐕𝐄𝐑𝐒𝐀̃𝐎 ❖ ──╮
-│ ${PREFIX}casar 💍
-│ ${PREFIX}cassanic 🎰
-│ ${PREFIX}lutar ⚔️
-│ ${PREFIX}molestar 😈
-│ ${PREFIX}matar / socar 🩸
-│ ${PREFIX}dado 🎲
-│ ${PREFIX}beijar / abracar 💋🤗
-╰─────────────────────╯
+📅 Data: ${date.toLocaleDateString()}  
+⏰ Hora: ${date.toLocaleTimeString()}  
 
-╭── ❖ 🎲 𝐉𝐎𝐆𝐎𝐒 ❖ ──╮
-│ ?mini-xadrez ♟️
-│ ?rr 🔫
-│ ?taro 🔮
-│ ?bj 🃏
-│ ?domino 🁢
-│ ?velha ❌⭕
-│ ?caraoucoroa 🪙
-╰─────────────────╯
-
-╭── ❖ 🖌️ 𝐄𝐅𝐄𝐈𝐓𝐎𝐒 ❖ ──╮
-│ ${PREFIX}blur 🌫️
-│ ${PREFIX}cadeia / rip ⚰️
-│ ${PREFIX}inverter 🔁
-│ ${PREFIX}bolsonaro 📺
-╰─────────────────────╯
+🌟━━━━━━━━━━━━━━━━━━🌟  
+       *${BOT_NAME} v${packageInfo.version}*  
+🌟━━━━━━━━━━━━━━━━━━🌟  
 `;
 };
