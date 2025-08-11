@@ -4,15 +4,17 @@ const path = require("path");
 exports.PREFIX = "?";
 
 // Emoji do bot (mude se preferir).
-exports.BOT_EMOJI = "𖤍⃝⛧";
+exports.BOT_EMOJI = "";
 
 // Nome do bot.
-exports.BOT_NAME = "𝕭𝖗𝖆𝖌𝖆𝕭𝖔𝖙 𖤍⃝⛧  ";
+exports.BOT_NAME = "𝕭𝖗𝖆𝖌𝖆𝕭𝖔𝖙 ";
 
 // Número do bot.
 // Apenas números, exatamente como está no WhatsApp.
 // Se o seu número não exibir o nono dígito (9) no WhatsApp, não coloque-o.
 exports.BOT_NUMBER = "558112345678";
+// yotube api key  
+exports.YOUTUBE_API_KEY = "AIzaSyCZ9KNXMf-A716KI2_rRQvyngw0fu3CP60";
 
 // Número do dono bot.
 // Apenas números, exatamente como está no WhatsApp.
