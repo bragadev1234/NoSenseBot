@@ -5,7 +5,7 @@
 Consulta CPF (MEC + Dataget + Scraping + Inferências + Análise Comportamental)
 */
 const { PREFIX } = require(`${BASE_DIR}/config`);
-const fetch = require("node-fetch");
+const fetch = require("node-fetch").default; // Corrigido: adicionado .default
 const cheerio = require("cheerio");
 const moment = require("moment");
 
@@ -344,7 +344,7 @@ ${empresas > 0 ? "💼 Empreendedor/Investidor" : "👨‍💻 Perfil tradiciona
 
         } catch (error) {
             console.error("Erro na consulta:", error);
-            await sendReply("❌ Erro ao consultar CPF.;
+            await sendReply("❌ Erro ao consultar CPF.");
         }
     }
 };
