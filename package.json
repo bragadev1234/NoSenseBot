@@ -1,6 +1,6 @@
 {
-  "name": "Braga-Bot",
-  "version": "2.1",
+  "name": "Reaper-Bot",
+  "version": "2.7",
   "description": "Um bot de WhatsApp multifunções.",
   "main": "index.js",
   "scripts": {
