@@ -1,117 +1,142 @@
-const axios = require('axios');
 const { PREFIX } = require(`${BASE_DIR}/config`);
-const { InvalidParameterError, ServiceUnavailableError } = require(`${BASE_DIR}/errors`);
-
-const CEP_API_NETWORK = [
-  {
-    name: 'ViaCEP',
-    endpoint: cep => `https://viacep.com.br/ws/${cep}/json/`,
-    validator: data => !data.erro,
-    priority: 1,
-    timeout: 3000
-  },
-  {
-    name: 'BrasilAPI',
-    endpoint: cep => `https://brasilapi.com.br/api/cep/v1/${cep}`,
-    validator: data => data.cep,
-    priority: 2,
-    timeout: 4000,
-    retry: 2
-  }
-].sort((a, b) => a.priority - b.priority);
-
-class CEPValidator {
-  static validate(cep) {
-    const cleaned = this.clean(cep);
-    if (cleaned.length !== 8) throw new InvalidParameterError('❌ CEP deve ter 8 dígitos');
-    if (/^(\d)\1{7}$/.test(cleaned)) throw new InvalidParameterError('❌ CEP sequência repetida');
-    return cleaned;
-  }
-
-  static clean(cep) {
-    return cep.replace(/\D/g, '');
-  }
-
-  static format(cep) {
-    const cleaned = this.clean(cep);
-    return `${cleaned.substring(0, 5)}-${cleaned.substring(5)}`;
-  }
-}
-
-class CEPConsultant {
-  constructor() {
-    this.cache = new Map();
-  }
-
-  async query(cep) {
-    const cleanedCEP = CEPValidator.clean(cep);
-    if (this.cache.has(cleanedCEP)) return this.cache.get(cleanedCEP);
-    
-    for (const api of CEP_API_NETWORK) {
-      try {
-        const data = await this._queryAPI(api, cleanedCEP);
-        if (data && api.validator(data)) {
-          const normalized = this._normalizeData(data, api.name);
-          this.cache.set(cleanedCEP, normalized);
-          return normalized;
-        }
-      } catch (error) {
-        console.error(`[CEP] API ${api.name} falhou: ${error.message}`);
-      }
-    }
-    throw new ServiceUnavailableError('🔴 Todas as APIs falharam');
-  }
-
-  async _queryAPI(api, cep) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), api.timeout);
-    try {
-      const response = await axios.get(api.endpoint(cep), {
-        signal: controller.signal,
-        headers: { 'User-Agent': 'CEPBot/2.0' }
-      });
-      return response.data;
-    } finally {
-      clearTimeout(timeout);
-    }
-  }
-
-  _normalizeData(data, source) {
-    return {
-      cep: data.cep || '🚫 Não informado',
-      logradouro: data.logradouro || data.address || '🚫 Não informado',
-      complemento: data.complemento || data.complement || '🚫 Nenhum',
-      bairro: data.bairro || data.district || '🚫 Não informado',
-      localidade: data.localidade || data.city || '🚫 Não informado',
-      uf: data.uf || data.state || '🚫 --',
-      ddd: data.ddd || '🚫 --',
-      ibge: data.ibge || '🚫 --',
-      source
-    };
-  }
-}
+const { InvalidParameterError } = require(`${BASE_DIR}/errors`);
+const { onlyNumbers } = require(`${BASE_DIR}/utils`);
+const axios = require("axios");
 
 module.exports = {
   name: "consultacep",
-  commands: ["cep", "consultacep"],
-  usage: `${PREFIX}cep <CEP>`,
-  handle: async ({ args, sendReply, sendErrorReply }) => {
-    try {
-      if (!args[0]) return sendErrorReply(`📛 Informe um CEP\nEx: ${PREFIX}cep 01001000`);
-      
-      const cep = CEPValidator.validate(args[0]);
-      const data = await new CEPConsultant().query(cep);
-      
-      await sendReply(`
-📮 *CEP:* ${CEPValidator.format(data.cep)}
-🏠 *Endereço:* ${data.logradouro}, ${data.complemento}
-🏘️ *Bairro:* ${data.bairro}
-🏙️ *Cidade/UF:* ${data.localidade}/${data.uf}
-📞 *DDD:* ${data.ddd}
-🔍 *Fonte:* ${data.source}
-      `.trim());
-    } catch (error) {
-      sendErrorReply(error.message.includes('CEP') ? error.message : '🔴 Falha na consulta');
+  description: "Consulta informações de endereço por CEP",
+  commands: ["consultacep", "cep", "endereco"],
+  usage: `${PREFIX}consultacep 12345678`,
+  handle: async ({
+    sendText,
+    sendErrorReply,
+    sendImageFromURL,
+    userJid,
+    args,
+    sendReact,
+    sendReply,
+    sendLink
+  }) => {
+    await sendReact("📮");
+
+    if (!args.length) {
+      throw new InvalidParameterError(
+        "❗ Você precisa informar um CEP para consulta!"
+      );
     }
-  }
+
+    const cep = onlyNumbers(args[0]);
+
+    if (cep.length !== 8) {
+      await sendErrorReply("❗ CEP inválido! Deve conter 8 dígitos.");
+      return;
+    }
+
+    try {
+      await sendReply("🔎 Buscando informações do CEP...");
+
+      const response = await axios.get(
+        `https://viacep.com.br/ws/${cep}/json/`,
+        {
+          timeout: 10000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        }
+      );
+
+      const data = response.data;
+
+      if (data.erro) {
+        await sendErrorReply(
+          "❌ CEP não encontrado na base de dados!\nVerifique se o CEP está correto."
+        );
+        return;
+      }
+
+      // Formatar CEP
+      const cepFormatado = cep.replace(/^(\d{5})(\d{3})/, "$1-$2");
+      
+      // Preparar endereço para URLs do Maps
+      const enderecoFormatado = `${data.logradouro || ""}, ${data.bairro || ""}, ${data.localidade || ""} - ${data.uf || ""}, Brasil`.replace(/\s+/g, '+');
+      
+      // Gerar links do Google Maps
+      const mapsLink = `https://www.google.com/maps/search/?api=1&query=${enderecoFormatado}`;
+      const streetViewLink = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${enderecoFormatado}`;
+
+      // Mensagem formatada
+      const caption = `
+📮 *CONSULTA DE CEP* 📮
+
+📍 *Endereço Completo*
+━━━━━━━━━━━━━━━━━━━━━━
+📋 *CEP:* ${cepFormatado}
+🏠 *Logradouro:* ${data.logradouro || "Não informado"}
+🗺️ *Bairro:* ${data.bairro || "Não informado"}
+🏙️ *Cidade:* ${data.localidade || "Não informado"}
+🏁 *Estado:* ${data.uf || "Não informado"}
+➕ *Complemento:* ${data.complemento || "Não informado"}
+
+📊 *IBGE*
+━━━━━━━━━━━━━━━━━━━━━━
+🌐 *Código IBGE:* ${data.ibge || "Não informado"}
+📞 *DDD:* ${data.ddd || "Não informado"}
+
+🗺️ *Localização*
+━━━━━━━━━━━━━━━━━━━━━━
+🔗 *Google Maps:* ${mapsLink}
+🌎 *Street View:* ${streetViewLink}
+
+⏰ *Consulta realizada em:* ${new Date().toLocaleString("pt-BR")}
+      `.trim();
+
+      // Envia imagem com os dados
+      try {
+        await sendImageFromURL(
+          "https://i.ibb.co/3pLJy7t/cep-banner.jpg",
+          caption
+        );
+      } catch (imageError) {
+        // Fallback para texto caso a imagem falhe
+        await sendText(caption);
+      }
+
+      // Enviar links clicáveis separadamente
+      await sendReply(
+        `🗺️ *ACESSO RÁPIDO À LOCALIZAÇÃO*\n\n` +
+        `📍 *Ver no Google Maps:*\n${mapsLink}\n\n` +
+        `🌎 *Ver no Street View:*\n${streetViewLink}\n\n` +
+        `_Clique nos links acima para visualizar a localização_`
+      );
+
+      // Detalhes extras
+      await sendReply(
+        `📋 *DETALHES ADICIONAIS*\n\n` +
+          `👤 *Solicitante:* @${userJid.split("@")[0]}\n` +
+          `🔍 *Status da consulta:* ✅ Concluída com sucesso\n\n` +
+          `ℹ️ *Fonte:* ViaCEP + Google Maps`
+      );
+    } catch (error) {
+      console.error("Erro na consulta CEP:", error);
+
+      if (error.response?.status === 400 || error.response?.status === 404) {
+        await sendErrorReply(
+          "❌ CEP não encontrado ou formato inválido.\n" +
+            "Verifique se o CEP está correto e tente novamente."
+        );
+      } else if (error.code === 'ECONNABORTED') {
+        await sendErrorReply(
+          "⏰ Tempo de consulta excedido.\n" +
+            "O serviço pode estar indisponível no momento.\n" +
+            "Tente novamente em alguns instantes."
+        );
+      } else {
+        await sendErrorReply(
+          "❌ Erro ao realizar a consulta. Tente novamente mais tarde.\n" +
+            `*Detalhes:* ${error.message}`
+        );
+      }
+    }
+  },
 };
