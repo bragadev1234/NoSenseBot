@@ -6,8 +6,6 @@ exports.menuMessage = (senderName) => {
 
   return `
 ✨━━━━━━━━━━━━━━━━━━✨  
-        *MENU DO ${BOT_NAME}*  
-✨━━━━━━━━━━━━━━━━━━✨  
 
 🚪 *${PREFIX}abrir/fechar*  
 🔨 *${PREFIX}ban*  
@@ -25,6 +23,8 @@ exports.menuMessage = (senderName) => {
 📜 *${PREFIX}regras*  
 🪪 *${PREFIX}cep*  
 📄 *${PREFIX}ip*  
+🚏 *${PREFOX}qr*
+📱 *${PREFIX}*
 🧾 *${PREFIX}loctel*  
 💳 *${PREFIX}cnpj*  
 📞 *${PREFIX}tel3*
@@ -44,9 +44,11 @@ exports.menuMessage = (senderName) => {
 👁️ *${PREFIX}revelar*  
 🖼️ *${PREFIX}to-image*  
 🖌️ *${PREFIX}gerar-imagem*  
+🎵 *${PREFIX}letra*
 🔎 *${PREFIX}google-led*  
 📝✂️ *${PREFIX}resumir*  
-💡 *Dica*: No comando *${PREFIX}s* você pode escolher um dos filtros: blur, grayscale, sepia, invert, cartoon, pixelate, vintage, emboss, glow, sketch, flip, mirror, rotate, negate, contrast  
+🤤 *${PREFIX}hentai*
+🚓 *${PREFOX}placa*
 💍 *${PREFIX}casar*  
 🤔 *${PREFIX}wiki* 
 🇯🇵 *${PREFIX}anime*  
@@ -101,8 +103,6 @@ exports.menuMessage = (senderName) => {
 ℹ️ *${PREFIX}pet info*
 
 📅 *Data:* ${date.toLocaleDateString()}  
-
-✨━━━━━━━━━━━━━━━━━━✨  
         *${BOT_NAME} v${packageInfo.version}*  
 ✨━━━━━━━━━━━━━━━━━━✨  
 `;
