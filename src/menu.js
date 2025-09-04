@@ -9,7 +9,6 @@ exports.menuMessage = (senderName) => {
         *MENU DO ${BOT_NAME}*  
 ✨━━━━━━━━━━━━━━━━━━✨  
 
-🛡️ *ADMINISTRAÇÃO* 🛡️  
 🚪 *${PREFIX}abrir/fechar*  
 🔨 *${PREFIX}ban*  
 🎖️ *${PREFIX}promover/rebaixar*  
@@ -29,7 +28,7 @@ exports.menuMessage = (senderName) => {
 🧾 *${PREFIX}loctel*  
 💳 *${PREFIX}cnpj*  
 📞 *${PREFIX}tel3*
-📞 *${PREFIX}*  
+📞 *${PREFIX}ddd*  
 🗳️ *${PREFIX}placa*  
 🧑‍🎓 *${PREFIX}bin*  
 📍 *${PREFIX}cpf*  
@@ -61,11 +60,47 @@ exports.menuMessage = (senderName) => {
 👋 *${PREFIX}tapa*  
 🍽️ *${PREFIX}jantar*  
 📶 *${PREFIX}ping*  
+🏪 *${PREFIX}get-lid*
+🚨 *${PREFIX}gerarsenha*
+🇵🇹 *${PREFIX}nif*
+🗓️ *${PREFIX}calculadora*
+💾 *${PREFIX}infogrupo | linkgrupo | listaadm*
 🌐 *${PREFIX}traduzir*  
 💼 *${PREFIX}vagas30*  
+🇪🇸 *${PREFIX}espanhola*
+💦 *${PREFIX}sexo1*
+🔥 *${PREFIX}sexo2*
+😈 *${PREFIX}sexo3*
+🚶 *${PREFIX}sexoempe*
+🍑 *${PREFIX}sentar2*
+💧 *${PREFIX}sexomolhado*
+👄 *${PREFIX}boquete*
+⚡ *${PREFIX}setar*
+😋 *${PREFIX}chuparpeitos*
+🎌 *${PREFIX}sexohegal*
+👭 *${PREFIX}sexo-lesbica*
+💋 *${PREFIX}beijo-lesbico*
+🌸 *${PREFIX}sexo-yuri*
+✋ *${PREFIX}apalpar-amiga*
+🤲 *${PREFIX}apalpar*
+🍆 *${PREFIX}sexo-futa1*
+🚀 *${PREFIX}sexo-futa2*
+💅 *${PREFIX}sexo-femboy*
+✌️ *${PREFIX}siririca*
+🍈🍈 *${PREFIX}mostrarospeitos*
+👅 *${PREFIX}chuparbct*
+🔥 *${PREFIX}siririca2*
+👀 *${PREFIX}sexo-loli*
+🤡 *${PREFIX}rank-corno*
+🥊 *${PREFIX}rank-jabateu*
+🎲 *${PREFIX}rank-jadeu*
+👅 *${PREFIX}rank-mamada*
+🐶 *${PREFIX}pet*
+📋 *${PREFIX}meuspets*
+🏆 *${PREFIX}pet rank*
+ℹ️ *${PREFIX}pet info*
 
 📅 *Data:* ${date.toLocaleDateString()}  
-⏰ *Hora:* ${date.toLocaleTimeString()}  
 
 ✨━━━━━━━━━━━━━━━━━━✨  
         *${BOT_NAME} v${packageInfo.version}*  
