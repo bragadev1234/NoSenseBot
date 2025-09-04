@@ -24,21 +24,23 @@ exports.menuMessage = (senderName) => {
 📢 *${PREFIX}marcartodos*  
 ⏰ *${PREFIX}agendar-mensagem*  
 📜 *${PREFIX}regras*  
-
-🔎 *INFORMAÇÕES* 🔎  
 🪪 *${PREFIX}cep*  
 📄 *${PREFIX}ip*  
 🧾 *${PREFIX}loctel*  
 💳 *${PREFIX}cnpj*  
+📞 *${PREFIX}tel3*
+📞 *${PREFIX}*  
 🗳️ *${PREFIX}placa*  
 🧑‍🎓 *${PREFIX}bin*  
 📍 *${PREFIX}cpf*  
 📞 *${PREFIX}ddd*  
 🙋 *${PREFIX}perfil*  
+🗣️ *${PREFIX}ig*  
+🎫 *${PREFIX}email*  
+🧐 *${PREFIX}geo*  
+🗃️ *${PREFIX}numero2*
 ♈ *${PREFIX}signododia*  
 🌌 *${PREFIX}ascendentedodia*  
-
-🎨 *MÍDIA & ARQUIVOS* 🎨  
 🌐 *${PREFIX}gerar-link*  
 👁️ *${PREFIX}revelar*  
 🖼️ *${PREFIX}to-image*  
@@ -46,9 +48,9 @@ exports.menuMessage = (senderName) => {
 🔎 *${PREFIX}google-led*  
 📝✂️ *${PREFIX}resumir*  
 💡 *Dica*: No comando *${PREFIX}s* você pode escolher um dos filtros: blur, grayscale, sepia, invert, cartoon, pixelate, vintage, emboss, glow, sketch, flip, mirror, rotate, negate, contrast  
-
-🎲 *DIVERSÃO & INTERAÇÃO* 🎲  
 💍 *${PREFIX}casar*  
+🤔 *${PREFIX}wiki* 
+🇯🇵 *${PREFIX}anime*  
 🎰 *${PREFIX}cassanic*  
 ⚔️ *${PREFIX}lutar*  
 🩸 *${PREFIX}matar/socar*  
@@ -58,8 +60,6 @@ exports.menuMessage = (senderName) => {
 🪙 *${PREFIX}caracoroa*  
 👋 *${PREFIX}tapa*  
 🍽️ *${PREFIX}jantar*  
-
-⚙️ *UTILIDADES* ⚙️  
 📶 *${PREFIX}ping*  
 🌐 *${PREFIX}traduzir*  
 💼 *${PREFIX}vagas30*  
