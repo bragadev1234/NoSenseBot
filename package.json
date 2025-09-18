@@ -1,14 +1,14 @@
 {
-  "name": "Reaper-Bot",
-  "version": "2.7",
-  "description": "Um bot de WhatsApp multifunções.",
+  "name": "ᚢ𐌏𐌔𐌄ᚢ𐌔𐌄 𐌁𐌏𐌕",
+  "version": "3.0",
+  "description": "ᚢ𐌏𐌔𐌄ᚢ𐌔𐌄 𐌁𐌏𐌕 - Bot multi funcional de WA",
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
     "test": "node ./src/test.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Bragadev",
   "license": "ISC",
   "dependencies": {
     "@cacheable/node-cache": "^1.5.8",
