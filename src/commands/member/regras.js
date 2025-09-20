@@ -20,7 +20,7 @@ module.exports = {
 
       const message = `
 📌 *Responsáveis:*    
-👤 Reaper   
+👤 Braga & Administração 
 
 📜 *Regras do grupo*    
 1️⃣ 😏 Piadas de teor sexual apenas com moderação    
@@ -28,23 +28,6 @@ module.exports = {
 3️⃣ 🚫 Proibidas piadas ou conteúdos envolvendo abuso ou nazismo    
 4️⃣ 🛡️ Proibida a divulgação de malwares    
 
-🛠️ *Recursos e utilitários*    
-🤖 *Projeto para derrubar contas do Instagram:*    
-Em breve (PasteBin).  
-
-💬 *Bot de Whatsapp* (open-source) + tutorial para execução local no Termux:    
-https://github.com/ProfaneReaper/Reaper-Bot  
-
-📱 *Método para desbanir WhatsApp* (apenas se o banimento foi natural), em 5 passos simples.  
-📅 *(Última revisão: Agosto de 2025)*    
-Em breve link atualizado.   
-
-_Obs: não é 100% de chances de voltar. Se sua conta ainda está em análise, não faça este método.  
-Não instale WhatsApp modificado. Espere confirmação do ban.  
-Se o ban não foi natural, provavelmente não funcionará._  
-
-🏫 *Link do grupo:*    
-https://chat.whatsapp.com/GUlXiHubM5xH14HVc11YXT?mode=ac_t
 `;
 
       await sendReply(message);
